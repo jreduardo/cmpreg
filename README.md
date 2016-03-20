@@ -1,4 +1,4 @@
-<img src = "./inst/img/tccPackage.svg" width=150px align="right" display="block">
+<img src = "https://gitlab.c3sl.ufpr.br/eerj12/tccPackage/raw/master/inst/img/tcc.png" width=150px align="right" display="block">
 
 ## tccPackage: Extensões e Aplicações do Modelo COM-Poisson ##
 
