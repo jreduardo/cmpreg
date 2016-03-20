@@ -1,0 +1,19 @@
+Package: tccPackage
+Title: Modelo de Regressão Conway-Maxwell-Poisson e Extensões
+Version: 0.0.1
+Authors@R: as.person(c(
+    "Eduardo Elias Ribeiro Junior <edujrrib@gmail.com> [aut, cre]",
+    "Walmes Marques Zeviani <walmes@ufpr.br> [ctb]"))
+Description: O pacote contém funções para ajuste dos modelos de
+    regressão Conway-Maxwell-Poisson (COM-Poisson) para dados de
+    contagem sub ou subdispersos. Modelos de regressão usual, modelos de
+    regressão para dados inflacionados de zeros e modelos de regressão
+    acomodando efeitos mistos são considerados. O pacote também contém
+    funções métodos para análise dos objetos R que representam os
+    modelos ajustados.
+Depends:
+    R (>= 3.2.3)
+License: GPL
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 5.0.1

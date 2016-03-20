@@ -1,0 +1,9 @@
+\#*\#
+^\.\#*
+^.*\.Rproj$
+^\.Rproj\.user$
+README.*
+CONTRIBUTING.*
+LICENSE
+roteiro.R
+^data-raw$

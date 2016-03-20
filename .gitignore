@@ -1,0 +1,13 @@
+## Arquivos temporários de backup do emacs
+*~
+.#*
+#*
+## Arquivos de projetos do RStudio
+.Rproj.user
+*.Rproj
+## Demais arquivos
+.Rhistory
+data-raw/*.txt
+*.Rout
+*.html
+roteiro*.R
