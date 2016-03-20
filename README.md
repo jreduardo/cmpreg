@@ -1,11 +1,11 @@
 <img src = "./inst/img/tccPackage.svg" width=150px align="right" display="block">
 
-## Extensões e Aplicações do Modelo COM-Poisson ##
+## tccPackage: Extensões e Aplicações do Modelo COM-Poisson ##
 
 > [Eduardo E. R. Junior](https://gitlab.c3sl.ufpr.br/u/eerj12) - Curso
 de Estatística - Universidade Federal do Paraná  
 > [Walmes M. Zeviani](https://gitlab.c3sl.ufpr.br/u/walmes) -
-Departamento de Estatística - Universidade Federal do Paraná
+Departamento de Estatística - Universidade Federal do Paraná  
 
 Pacote R para ajuste e diagnóstico de modelos _Conway-Maxwell-Poisson
 (COM-Poisson)_ para dados de contagem sub ou superdispersos. Modelo de
@@ -13,7 +13,7 @@ regressão tradicional, modelos para dados inflacionados de zeros e
 modelos mistos são considerados. Este pacote faz parte de meu trabalho
 de conclusão de curso e é desenvolvido em conjunto com o repositório
 [tccDocument], que possui uma completa revisão e definição dos modelos
-considerados no pacote.
+considerados no pacote em formato de projeto e relatório de pesquisa.
 
 ***
 
@@ -61,3 +61,10 @@ install.packages("tccPackage_0.0.1.tar.gz", repos = NULL)
 ```r
 install.packages("tccPackage_0.0.1.zip", repos = NULL)
 ```
+
+[tccDocument]: https://gitlab.c3sl.ufpr.br/eerj12/tccDocument
+[Git]: https://git-scm.com/
+[GitLab do C3SL]: https://gitlab.c3sl.ufpr.br/eerj12/tccPackage
+[CRAN]: https://cran.r-project.org/web/packages/devtools
+[tccPackage_0.0.1.tar.gz]: https://gitlab.c3sl.ufpr.br/eerj12/tccPackage
+[tccPackage_0.0.1.zip]: https://gitlab.c3sl.ufpr.br/eerj12/tccPackage
