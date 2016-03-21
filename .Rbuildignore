@@ -5,5 +5,5 @@
 README.*
 CONTRIBUTING.*
 LICENSE
-roteiro*.R
+roteiro.*.R
 ^data-raw$

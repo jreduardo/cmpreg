@@ -8,16 +8,16 @@
 
 \describe{
 
-\item{\code{fenol}}{ Um fator categórico com 5 níveis que representa o
+\item{\code{est}}{Um fator categórico com 5 níveis que representa o
     estágio fenológico da planto durante a aplicação da desfolha.}
 
-\item{\code{desfol}}{ Um fator numérico com 5 níveis que representa o
+\item{\code{des}}{Um fator numérico com 5 níveis que representa o
     nível de desfolha artificial (percentual da área da folha}
     removida com tesoura) aplicada a todas as folhas na planta.
 
-\item{\code{rept}}{ Inteiro que representa cada unidade experimental.}
+\item{\code{rept}}{Inteiro que representa cada unidade experimental.}
 
-\item{\code{ncap}}{ Inteiro que representa o número de capulhos de
+\item{\code{ncap}}{Inteiro que representa o número de capulhos de
     algodão produzidos ao final da ciclo cultura.}
 }}
 \usage{
@@ -31,6 +31,38 @@ Experimento conduzido sob delineamento interamente
     estágio fenológico no qual a desfolha foi aplicada. A unidade
     experimental foi um vaso com duas plantas onde avaliou-se o
     número de capulhos produzidos ao final da ciclo cultura.
+}
+\examples{
+data(defoliation)
+
+library(lattice)
+
+xyplot(ncap ~ des | est,
+       data = defoliation,
+       layout = c(NA, 2),
+       type = c("p", "smooth"),
+       xlab = "Níveis de desfolha artificial",
+       ylab = "Número de capulhos produzidos",
+       xlim = extendrange(c(0:1), f = 0.15),
+       jitter.x = TRUE,
+       grid = TRUE)
+
+# Média e variância amostral para cada unidade experimental
+(mv <- aggregate(ncap ~ est + des, data = defoliation,
+                FUN = function(x) c(mean = mean(x), var = var(x))))
+xlim <- ylim <- extendrange(c(mv$ncap), f = 0.05)
+
+# Evidência de subdispersão
+xyplot(ncap[, "var"] ~ ncap[, "mean"],
+       data = mv,
+       xlim = xlim,
+       ylim = ylim,
+       ylab = "Sample variance",
+       xlab = "Sample mean",
+       panel = function(x, y) {
+           panel.xyplot(x, y, type = c("p", "r"), grid = TRUE)
+           panel.abline(a = 0, b = 1, lty = 2)
+       })
 }
 \references{
 Silva, A. M., Degrande, P. E., Suekane, R., Fernandes,

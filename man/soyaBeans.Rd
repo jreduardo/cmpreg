@@ -32,9 +32,6 @@
 \item{\code{nv}}{Número de vagens total.}
 
 }}
-\source{
-???
-}
 \description{
 Experimento conduzido na Universidade Federal da Grande
     Dourados (UFGD) em casa de vegetação com a cultura de soja. Foram
@@ -47,7 +44,33 @@ As variáveis \code{ts} e \code{nv} possuem alta correlação
     (0.978), pois em média são esperados 3 sementes por cada
     vagem. Então \code{ts} pode ser tratada como função de \code{nv}.
 }
-\keyword{(efeito}
-\keyword{aleatório)}
+\examples{
+data(soyaBeans)
+
+library(lattice)
+
+splom(soyaBeans[, -c(1:3)],
+      type = c("p", "smooth"),
+      grid = TRUE)
+
+# Para variável número de vagens em função dos fatores experimentais
+xyplot(nv ~ potassio | factor(agua),
+       data = soyaBeans,
+       type = c("p", "spline"),
+       grid = TRUE,
+       as.table = TRUE,
+       layout = c(NA, 1))
+
+# Para variável número de vagens inviáveis em função dos fatores
+# experimentais
+xyplot(nvi ~ potassio | factor(agua),
+       data = soyaBeans,
+       type = c("p", "spline"),
+       grid = TRUE,
+       as.table = TRUE,
+       layout = c(NA, 1))
+}
+\keyword{efeito-aleatório}
 \keyword{equidispersão}
+\keyword{superdispersão}
 

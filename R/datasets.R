@@ -69,7 +69,7 @@
 #'        panel = function(x, y) {
 #'            panel.xyplot(x, y, type = c("p", "r"), grid = TRUE)
 #'            panel.abline(a = 0, b = 1, lty = 2)
-#'        }
+#'        })
 NULL
 
 #' @name soyaBeans
@@ -124,9 +124,8 @@ NULL
 #'
 #' # Para variável número de vagens em função dos fatores experimentais
 #' xyplot(nv ~ potassio | factor(agua),
-#'        groups = bloco,
 #'        data = soyaBeans,
-#'        type = c("p", "a"),
+#'        type = c("p", "spline"),
 #'        grid = TRUE,
 #'        as.table = TRUE,
 #'        layout = c(NA, 1))
@@ -134,10 +133,75 @@ NULL
 #' # Para variável número de vagens inviáveis em função dos fatores
 #' # experimentais
 #' xyplot(nvi ~ potassio | factor(agua),
-#'        groups = bloco,
 #'        data = soyaBeans,
-#'        type = c("p", "a"),
+#'        type = c("p", "spline"),
 #'        grid = TRUE,
 #'        as.table = TRUE,
 #'        layout = c(NA, 1))
+NULL
+
+
+#' @name whiteFly
+#' @title Ninfas de Mosca-Branca em Lavoura de Soja
+#' @description Experimento conduzido em casa de vegetação sob o
+#'     delineamento de blocos casualizados. No experimento foram
+#'     avaliadas plantas de diferentes cultivares de soja contabilizando
+#'     o número de ninfas de mosca-branca nos folíolos dos terços
+#'     superior, médio e inferior das plantas. As avaliações ocorreram
+#'     em 6 datas dentre os 38 dias do estudo.
+#' @format Um \code{data.frame} com 240 observações e 8 variáveis.
+#'     \describe{
+#'
+#' \item{\code{data}}{Data em que foram avaliadas as plantas de soja.}
+#'
+#' \item{\code{dias}}{Inteiro que indica o número de dias após o
+#'     experimento no ato da avaliação.}
+#'
+#' \item{\code{cult}}{Fator com a identificação da cultivar de
+#'     soja. Foram 10 cultivares avaliadas neste experimento.}
+#'
+#' \item{\code{bloco}}{Fator com 4 níveis que representam os blocos
+#'     utilizados para controle de variação local.}
+#'
+#' \item{\code{nsup}}{Número de ninfas de mosca-branca nos folíolos do
+#'     terço superior.}
+#'
+#' \item{\code{nmed}}{Número de ninfas de mosca-branca nos folíolos do
+#'     terço médio.}
+#'
+#' \item{\code{ninf}}{Número de ninfas de mosca-branca nos folíolos do
+#'     terço inferior.}
+#'
+#' \item{\code{ntot}}{Número de ninfas de mosca-branca considerando
+#'     todos os folíolos (soma de \code{nsup}, \code{nmed},
+#'     \code{ntot}).}
+#'
+#' }
+#' @keywords superdispersão
+#' @references Suekane, R., Degrande, P. E., de Lima Junior, I. S., de
+#'     Queiroz, M. V. B. M., & Rigoni, E. R. (2013). Danos da
+#'     Mosca-Branca Bemisia Tabaci e distribuição vertical das ninfas em
+#'     cultivares de soja em casa de vegetação. Arquivos do Instituto
+#'     Biológico, 80(2), 151-158.
+#' @examples
+#' data(whiteFly)
+#'
+#' library(lattice)
+#'
+#' xyplot(ntot ~ dias | cult,
+#'        data = whiteFly,
+#'        type = c("p", "spline"),
+#'        grid = TRUE,
+#'        as.table = TRUE,
+#'        layout = c(NA, 2))
+#'
+#' # Somente as cultivares que contém BRS na identificação
+#' da <- droplevels(subset(whiteFly, grepl("BRS", x = cult)))
+#'
+#' xyplot(ntot ~ dias | cult,
+#'        data = da,
+#'        type = c("p", "spline"),
+#'        grid = TRUE,
+#'        as.table = TRUE,
+#'        layout = c(NA, 2))
 NULL
