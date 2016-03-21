@@ -1,6 +1,5 @@
 #' @name defoliation
 #' @title Capulhos de Algodão em Função de Desfolha Artificial
-#'
 #' @description Experimento conduzido sob delineamento interamente
 #'     casualizado com 5 repetições em casa de vegetação com plantas de
 #'     algodão \emph{Gossypium hirsutum} submetidas à diferentes níveis
@@ -8,27 +7,25 @@
 #'     estágio fenológico no qual a desfolha foi aplicada. A unidade
 #'     experimental foi um vaso com duas plantas onde avaliou-se o
 #'     número de capulhos produzidos ao final da ciclo cultura.
-#'
 #' @format Um code{data.frame} com 125 observações e 4 variáveis
+#'
 #' \describe{
 #'
-#' \item{\code{phenol}}{ Um fator categórico com 5 níveis que representa o
+#' \item{\code{est}}{Um fator categórico com 5 níveis que representa o
 #'     estágio fenológico da planto durante a aplicação da desfolha.}
 #'
-#' \item{\code{defol}}{ Um fator numérico com 5 níveis que representa o
+#' \item{\code{des}}{Um fator numérico com 5 níveis que representa o
 #'     nível de desfolha artificial (percentual da área da folha}
 #'     removida com tesoura) aplicada a todas as folhas na planta.
 #'
-#' \item{\code{rept}}{ Inteiro que representa cada unidade experimental.}
+#' \item{\code{rept}}{Inteiro que representa cada unidade experimental.}
 #'
-#' \item{\code{bolls}}{ Inteiro que representa o número de capulhos de
+#' \item{\code{ncap}}{Inteiro que representa o número de capulhos de
 #'     algodão produzidos ao final da ciclo cultura.}
 #' }
 #'
 #' @docType data
-#'
-#' @keywords datasets subdispersão
-#'
+#' @keywords subdispersão
 #' @usage data(defoliation)
 #'
 #' @references Silva, A. M., Degrande, P. E., Suekane, R., Fernandes,
@@ -42,4 +39,105 @@
 #'     Statistics, 41(12),
 #'     1–11. http://doi.org/10.1080/02664763.2014.922168
 #'
+#' @examples
+#' data(defoliation)
+#'
+#' library(lattice)
+#'
+#' xyplot(ncap ~ des | est,
+#'        data = defoliation,
+#'        layout = c(NA, 2),
+#'        type = c("p", "smooth"),
+#'        xlab = "Níveis de desfolha artificial",
+#'        ylab = "Número de capulhos produzidos",
+#'        xlim = extendrange(c(0:1), f = 0.15),
+#'        jitter.x = TRUE,
+#'        grid = TRUE)
+#'
+#' # Média e variância amostral para cada unidade experimental
+#' (mv <- aggregate(ncap ~ est + des, data = defoliation,
+#'                 FUN = function(x) c(mean = mean(x), var = var(x))))
+#' xlim <- ylim <- extendrange(c(mv$ncap), f = 0.05)
+#'
+#' # Evidência de subdispersão
+#' xyplot(ncap[, "var"] ~ ncap[, "mean"],
+#'        data = mv,
+#'        xlim = xlim,
+#'        ylim = ylim,
+#'        ylab = "Sample variance",
+#'        xlab = "Sample mean",
+#'        panel = function(x, y) {
+#'            panel.xyplot(x, y, type = c("p", "r"), grid = TRUE)
+#'            panel.abline(a = 0, b = 1, lty = 2)
+#'        }
+NULL
+
+#' @name soyaBeans
+#' @title Avaliação da Cultura de Soja
+#' @description Experimento conduzido na Universidade Federal da Grande
+#'     Dourados (UFGD) em casa de vegetação com a cultura de soja. Foram
+#'     experimentados diferentes fatores de água do solo e de adubação
+#'     potássica, em cada parcela que continha 2 plantas. Para controle
+#'     de variação local, as parcelas foram arranjadas em blocos.
+#' @format Um \code{data.frame} com 75 observações e 10 variáveis.
+#'     \describe{
+#'
+#' \item{\code{potassio}}{Número inteiro que representa a adubação
+#'     potássica experimentada em cada parcela. Foram 5 nivéis de
+#'     adubação considerados.}
+#'
+#' \item{\code{agua}}{Numérico que representa o nível de água do solo
+#'     que as parcelas foram cultivadas. Foram 3 níveis experimentados
+#'     pouca água, água em quantidade ideal, água em abundância.}
+#'
+#' \item{\code{bloco}}{Fator com 5 níveis que representam os blocos
+#'     utilizados para controle de variação local.}
+#'
+#' \item{\code{rend}}{Rendimento de grãos.}
+#'
+#' \item{\code{peso}}{Peso de grãos.}
+#'
+#' \item{\code{kgrao}}{Conteúdo de potássio no grão.}
+#'
+#' \item{\code{pgrao}}{Conteúdo de fósforo no grão.}
+#'
+#' \item{\code{ts}}{Total de sementes por planta.}
+#'
+#' \item{\code{nvi}}{Número de vagens inviáveis.}
+#'
+#' \item{\code{nv}}{Número de vagens total.}
+#'
+#' }
+#'
+#' @details As variáveis \code{ts} e \code{nv} possuem alta correlação
+#'     (0.978), pois em média são esperados 3 sementes por cada
+#'     vagem. Então \code{ts} pode ser tratada como função de \code{nv}.
+#' @keywords equidispersão superdispersão efeito-aleatório
+#' @examples
+#' data(soyaBeans)
+#'
+#' library(lattice)
+#'
+#' splom(soyaBeans[, -c(1:3)],
+#'       type = c("p", "smooth"),
+#'       grid = TRUE)
+#'
+#' # Para variável número de vagens em função dos fatores experimentais
+#' xyplot(nv ~ potassio | factor(agua),
+#'        groups = bloco,
+#'        data = soyaBeans,
+#'        type = c("p", "a"),
+#'        grid = TRUE,
+#'        as.table = TRUE,
+#'        layout = c(NA, 1))
+#'
+#' # Para variável número de vagens inviáveis em função dos fatores
+#' # experimentais
+#' xyplot(nvi ~ potassio | factor(agua),
+#'        groups = bloco,
+#'        data = soyaBeans,
+#'        type = c("p", "a"),
+#'        grid = TRUE,
+#'        as.table = TRUE,
+#'        layout = c(NA, 1))
 NULL

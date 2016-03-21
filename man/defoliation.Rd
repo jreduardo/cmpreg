@@ -5,18 +5,19 @@
 \alias{defoliation}
 \title{Capulhos de Algodão em Função de Desfolha Artificial}
 \format{Um code{data.frame} com 125 observações e 4 variáveis
+
 \describe{
 
-\item{\code{phenol}}{ Um fator categórico com 5 níveis que representa o
+\item{\code{fenol}}{ Um fator categórico com 5 níveis que representa o
     estágio fenológico da planto durante a aplicação da desfolha.}
 
-\item{\code{defol}}{ Um fator numérico com 5 níveis que representa o
+\item{\code{desfol}}{ Um fator numérico com 5 níveis que representa o
     nível de desfolha artificial (percentual da área da folha}
     removida com tesoura) aplicada a todas as folhas na planta.
 
 \item{\code{rept}}{ Inteiro que representa cada unidade experimental.}
 
-\item{\code{bolls}}{ Inteiro que representa o número de capulhos de
+\item{\code{ncap}}{ Inteiro que representa o número de capulhos de
     algodão produzidos ao final da ciclo cultura.}
 }}
 \usage{
@@ -43,6 +44,5 @@ Zeviani, W. M., Ribeiro, P. J., Bonat, W. H., Shimakura, S. E., &
     Statistics, 41(12),
     1–11. http://doi.org/10.1080/02664763.2014.922168
 }
-\keyword{datasets}
 \keyword{subdispersão}
 

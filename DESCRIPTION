@@ -13,6 +13,7 @@ Description: O pacote contém funções para ajuste dos modelos de
     modelos ajustados.
 Depends:
     R (>= 3.2.3)
+Suggests: lattice
 License: GPL
 Encoding: UTF-8
 LazyData: true
