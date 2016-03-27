@@ -1,4 +1,4 @@
-#' @name defoliation
+#' @name cottonBolls
 #' @title Capulhos de Algodão em Função de Desfolha Artificial
 #' @description Experimento conduzido sob delineamento interamente
 #'     casualizado com 5 repetições em casa de vegetação com plantas de
@@ -26,7 +26,7 @@
 #'
 #' @docType data
 #' @keywords subdispersão
-#' @usage data(defoliation)
+#' @usage data(cottonBolls)
 #'
 #' @references Silva, A. M., Degrande, P. E., Suekane, R., Fernandes,
 #'     M. G., & Zeviani, W. M. (2012). Impacto de diferentes níveis de
@@ -40,12 +40,12 @@
 #'     1–11. http://doi.org/10.1080/02664763.2014.922168
 #'
 #' @examples
-#' data(defoliation)
+#' data(cottonBolls)
 #'
 #' library(lattice)
 #'
 #' xyplot(ncap ~ des | est,
-#'        data = defoliation,
+#'        data = cottonBolls,
 #'        layout = c(NA, 2),
 #'        type = c("p", "smooth"),
 #'        xlab = "Níveis de desfolha artificial",
@@ -55,7 +55,7 @@
 #'        grid = TRUE)
 #'
 #' # Média e variância amostral para cada unidade experimental
-#' (mv <- aggregate(ncap ~ est + des, data = defoliation,
+#' (mv <- aggregate(ncap ~ est + des, data = cottonBolls,
 #'                 FUN = function(x) c(mean = mean(x), var = var(x))))
 #' xlim <- ylim <- extendrange(c(mv$ncap), f = 0.05)
 #'
@@ -301,7 +301,7 @@ NULL
 #'        type = c("p", "g", "smooth"))
 NULL
 
-#' @name cottonBolls
+#' @name cottonBolls2
 #' @title Capulhos de Algodão em Função da Exposição à Mosca Branca
 #' @description Experimento conduzido na Universidade Federal da Grande
 #'     Dourados (UFGD) em 2007, cujo objetivo foi avaliar os impactos da
@@ -343,38 +343,38 @@ NULL
 #' @keywords efeito-aleatório subdispersão
 #' @examples
 #'
-#' data(cottonBolls)
+#' data(cottonBolls2)
 #'
 #' library(lattice)
 #'
 #' # Número de estruturas reprodutivas
 #' xyplot(nerep ~ dexp | vaso,
-#'        data = cottonBolls,
+#'        data = cottonBolls2,
 #'        jitter.x = TRUE,
 #'        type = c("p", "g", "smooth"))
 #'
 #' # Número de capulhos produzidos
 #' xyplot(ncapu ~ dexp | vaso,
-#'        data = cottonBolls,
+#'        data = cottonBolls2,
 #'        jitter.x = TRUE,
 #'        type = c("p", "g", "smooth"))
 #'
 #' # Número de nós
 #' xyplot(nnos ~ dexp | vaso,
-#'        data = cottonBolls,
+#'        data = cottonBolls2,
 #'        jitter.x = TRUE,
 #'        type = c("p", "g", "smooth"))
 #'
 #' # Altura das plantas
 #' xyplot(alt ~ dexp | vaso,
-#'        data = cottonBolls,
+#'        data = cottonBolls2,
 #'        jitter.x = TRUE,
 #'        type = c("p", "g", "smooth"))
 #'
 #' # Peso dos capulhos nos vasos
-#' da <- cottonBolls[complete.cases(cottonBolls), ]
+#' da <- cottonBolls2[complete.cases(cottonBolls2), ]
 #' xyplot(pesocap ~ dexp,
-#'        data = cottonBolls,
+#'        data = cottonBolls2,
 #'        jitter.x = TRUE,
 #'        type = c("p", "g", "smooth"))
 NULL
