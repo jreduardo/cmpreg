@@ -25,7 +25,7 @@
 #' }
 #'
 #' @docType data
-#' @keywords subdispersão
+#' @keywords subdispersão dataset
 #' @usage data(cottonBolls)
 #'
 #' @references Silva, A. M., Degrande, P. E., Suekane, R., Fernandes,
@@ -112,7 +112,9 @@ NULL
 #' @details As variáveis \code{ts} e \code{nv} possuem alta correlação
 #'     (0.978), pois em média são esperados 3 sementes por cada
 #'     vagem. Então \code{ts} pode ser tratada como função de \code{nv}.
-#' @keywords equidispersão superdispersão efeito-aleatório
+#'
+#' @docType data
+#' @keywords equidispersão superdispersão efeito-aleatório dataset
 #' @examples
 #' data(soyaBeans)
 #'
@@ -177,7 +179,9 @@ NULL
 #'     \code{ntot}).}
 #'
 #' }
-#' @keywords superdispersão
+#'
+#' @docType data
+#' @keywords superdispersão dataset
 #' @references Suekane, R., Degrande, P. E., de Lima Junior, I. S., de
 #'     Queiroz, M. V. B. M., & Rigoni, E. R. (2013). Danos da
 #'     Mosca-Branca Bemisia Tabaci e distribuição vertical das ninfas em
@@ -245,7 +249,9 @@ NULL
 #'     experimental (gaiola), mensurada em gramas.}
 #'
 #' }
-#' @keywords efeito-aleatório
+#'
+#' @docType data
+#' @keywords efeito-aleatório dataset
 #' @references Borille, Rodrigo, Garcia, Rodrigo G., Nääs, Irenilza A.,
 #'     Caldara, Fabiana R., & Santana, Mayara R.. (2015). Monochromatic
 #'     light-emitting diode (LED) source in layers hens during the
@@ -340,7 +346,9 @@ NULL
 #' \item{\code{nnos}}{Contagem do número de nós da planta.}
 #'
 #' }
-#' @keywords efeito-aleatório subdispersão
+#'
+#' @docType data
+#' @keywords efeito-aleatório subdispersão dataset
 #' @examples
 #'
 #' data(cottonBolls2)
