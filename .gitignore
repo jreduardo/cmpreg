@@ -11,3 +11,4 @@ data-raw/*.txt
 *.Rout
 *.html
 roteiro*.R
+tccPackage.pdf

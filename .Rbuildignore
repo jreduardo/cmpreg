@@ -7,3 +7,4 @@ CONTRIBUTING.*
 LICENSE
 roteiro.*.R
 ^data-raw$
+tccPackage.pdf
