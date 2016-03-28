@@ -4,7 +4,7 @@
 \alias{ll_cmp}
 \title{Log-Verossimilhança do Modelo Conway-Maxwell-Poisson}
 \usage{
-ll_cmp(betas, phi, y, X)
+ll_cmp(betas, phi, y, X, offset = NULL)
 }
 \arguments{
 \item{betas}{Um vetor de estimativas para os parâmetros de regressão
@@ -16,6 +16,9 @@ na distrbuição Conway-Maxwell-Poisson \eqn{\phi = \log{\nu}}}
 \item{y}{Um vetor de contagens, considerado como variável resposta}
 
 \item{X}{A matriz de delineamento do modelo}
+
+\item{offset}{Um vetor de valores a serem adicionados ao preditor
+linear}
 }
 \value{
 O valor da log-verossimilhança do modelo

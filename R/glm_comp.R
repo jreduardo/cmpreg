@@ -10,19 +10,24 @@
 #'     na distrbuição Conway-Maxwell-Poisson \eqn{\phi = \log{\nu}}
 #' @param y Um vetor de contagens, considerado como variável resposta
 #' @param X A matriz de delineamento do modelo
+#' @param offset Um vetor de valores a serem adicionados ao preditor
+#'     linear
 #' @return O valor da log-verossimilhança do modelo
 #'     Conway-Maxwell-Poisson com os parâmetros e dados informados
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @seealso \code{\link[tccPackage]{glm_cmp}}
 
-ll_cmp <- function(betas, phi, y, X){
+ll_cmp <- function(betas, phi, y, X, offset = NULL){
     nu <- exp(phi)
     Xb <- X %*% betas
+    if (!is.null(offset)) 
+        Xb <- Xb + offset
     kernel <- sum(y * Xb - nu * lfactorial(y))
     ## Obtendo a constante normatizadora Z.
     ## WARNING: Verificar a qtde de termos para a soma infinita
     i <- 1:150
-    zs <- sapply(Xb, function(lam) sum(exp(i * lam - nu * lfactorial(i))))
+    zs <- sapply(Xb, function(lam)
+        sum(exp(i * lam - nu * lfactorial(i))))
     Z <- sum(log(zs + 1))
     ll <- kernel - Z
     return(ll)
@@ -33,7 +38,9 @@ ll_cmp <- function(betas, phi, y, X){
 #'     otimização da função de log-verossimilhança. A sintaxe
 #'     assemelha-se com a função \code{\link{glm}} (Generalized Linear
 #'     Models).
-#' @param formula Um objeto da classe \code{\link{formula}}
+#' @param formula Um objeto da classe \code{\link{formula}}. Se
+#'     necessária a inclusão de \emph{offset} deve-se indicá-lo como
+#'     \code{\link{offset}}
 #' @param data Um objeto de classe \code{data.frame}, cujo contém as
 #'     variáveis descritas na \code{formula}
 #' @param ... Argumentos opcionais do framework de maximização numérica
@@ -49,6 +56,7 @@ glm_cmp <- function(formula, data, ...) {
     ##
     y <- model.response(frame)
     X <- model.matrix(terms, frame)
+    off <- model.offset(frame)
     ##
     poissonModel <- glm(formula, data = data,
                         family = poisson)
@@ -56,7 +64,7 @@ glm_cmp <- function(formula, data, ...) {
     phi <- 0
     ##
     fn <- function(params) {
-        - ll_cmp(params[-1], params[1], y = y, X = X)
+        - ll_cmp(params[-1], params[1], y = y, X = X, offset = off)
     }
     opt <- optim(c(phi, betas), fn = fn, method = "BFGS",
                  hessian = TRUE, ...)

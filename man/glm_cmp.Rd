@@ -4,16 +4,15 @@
 \alias{glm_cmp}
 \title{Estimação do Modelo Conway-Maxwell-Poisson}
 \usage{
-glm_cmp(formula, data, subset = NULL, ...)
+glm_cmp(formula, data, ...)
 }
 \arguments{
-\item{formula}{Um objeto da classe \code{\link{formula}}}
+\item{formula}{Um objeto da classe \code{\link{formula}}. Se
+necessária a inclusão de \emph{offset} deve-se indicá-lo como
+\code{\link{offset}}}
 
 \item{data}{Um objeto de classe \code{data.frame}, cujo contém as
 variáveis descritas na \code{formula}}
-
-\item{subset}{Um vetor lógico opcional, indicando um sub-grupo do
-\code{data.frame} especificado em \code{data}}
 
 \item{...}{Argumentos opcionais do framework de maximização numérica
 \code{\link{optim}}}
