@@ -36,8 +36,6 @@ ll_cmp <- function(betas, phi, y, X){
 #' @param formula Um objeto da classe \code{\link{formula}}
 #' @param data Um objeto de classe \code{data.frame}, cujo contém as
 #'     variáveis descritas na \code{formula}
-#' @param subset Um vetor lógico opcional, indicando um sub-grupo do
-#'     \code{data.frame} especificado em \code{data}
 #' @param ... Argumentos opcionais do framework de maximização numérica
 #'     \code{\link{optim}}
 #' @return Uma lista com de valores retornados da \code{\link{optim}}
@@ -45,20 +43,20 @@ ll_cmp <- function(betas, phi, y, X){
 #' @seealso \code{\link[tccPackage]{ll_cmp}}
 #' @export
 
-glm_cmp <- function(formula, data, subset = NULL, ...) {
-    frame <- model.frame(formula, data, subset = subset)
+glm_cmp <- function(formula, data, ...) {
+    frame <- model.frame(formula, data)
     terms <- attr(frame, "terms")
     ##
     y <- model.response(frame)
     X <- model.matrix(terms, frame)
     ##
-    poissonModel <- glm(formula, data = data, subset = subset,
+    poissonModel <- glm(formula, data = data,
                         family = poisson)
     betas <- poissonModel$coefficients
     phi <- 0
     ##
     fn <- function(params) {
-        ll_cmp(params[-1], params[1], y = y, X = X)
+        - ll_cmp(params[-1], params[1], y = y, X = X)
     }
     opt <- optim(c(phi, betas), fn = fn, method = "BFGS",
                  hessian = TRUE, ...)
