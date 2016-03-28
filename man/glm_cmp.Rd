@@ -18,7 +18,8 @@ variáveis descritas na \code{formula}}
 \code{\link{optim}}}
 }
 \value{
-Uma lista com de valores retornados da \code{\link{optim}}
+Uma lista de componentes do ajuste. Objeto de classe
+    \code{mcglm} cujo funções métodos foram implementadas.
 }
 \description{
 Estima os parâmetros de um modelo COM-Poisson sob a
@@ -26,10 +27,62 @@ Estima os parâmetros de um modelo COM-Poisson sob a
     assemelha-se com a função \code{\link{glm}} (Generalized Linear
     Models).
 }
+\examples{
+
+#-------------------------------------------
+# Conjunto 1
+data(soyaBeans)
+help(soyaBeans, h = "html")
+str(soyaBeans)
+
+da <- transform(soyaBeans, K = factor(potassio), A = factor(agua))
+(model <- glm_cmp(nv ~ bloco + K * A, data = da))
+logLik(model)
+
+#-------------------------------------------
+# Conjunto 2
+data(whiteFly)
+help(whiteFly, h = "html")
+str(whiteFly)
+
+da <- droplevels(subset(whiteFly, grepl("BRS", x = cult)))
+(model <- glm_cmp(ntot ~ bloco + cult * dias, data = da))
+logLik(model)
+
+#-------------------------------------------
+# Conjunto 3
+data(eggs)
+help(eggs, h = "html")
+str(eggs)
+
+da <- aggregate(ovos ~ periodo + box + luz + gaiola,
+                data = eggs, FUN = sum)
+da <- transform(da, off = 10 * 14)
+(model <- glm_cmp(ovos ~ offset(log(off)) + periodo + box + luz,
+                  data = da))
+logLik(model)
+
+#-------------------------------------------
+# Conjunto 4
+data(cottonBolls)
+help(cottonBolls, h = "html")
+str(cottonBolls)
+
+(model <- glm_cmp(ncap ~ est:(des + I(des^2)), data = cottonBolls))
+logLik(model)
+
+#-------------------------------------------
+# Conjunto 5
+data(cottonBolls2)
+help(cottonBolls2, h = "html")
+str(cottonBolls2)
+
+da <- transform(cottonBolls2, dexp = dexp - mean(range(dexp)))
+(model <- glm_cmp(ncapu ~ dexp + I(dexp^2), data = da))
+logLik(model)
+
+}
 \author{
 Eduardo E. R. Junior, \email{edujrrib@gmail.com}
-}
-\seealso{
-\code{\link[tccPackage]{ll_cmp}}
 }
 

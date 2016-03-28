@@ -45,12 +45,66 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #'     variáveis descritas na \code{formula}
 #' @param ... Argumentos opcionais do framework de maximização numérica
 #'     \code{\link{optim}}
-#' @return Uma lista com de valores retornados da \code{\link{optim}}
+#' @return Uma lista de componentes do ajuste. Objeto de classe
+#'     \code{mcglm} cujo funções métodos foram implementadas.
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
-#' @seealso \code{\link[tccPackage]{ll_cmp}}
+#' @examples
+#'
+#' #-------------------------------------------
+#' # Conjunto 1
+#' data(soyaBeans)
+#' help(soyaBeans, h = "html")
+#' str(soyaBeans)
+#'
+#' da <- transform(soyaBeans, K = factor(potassio), A = factor(agua))
+#' (model <- glm_cmp(nv ~ bloco + K * A, data = da))
+#' logLik(model)
+#'
+#' #-------------------------------------------
+#' # Conjunto 2
+#' data(whiteFly)
+#' help(whiteFly, h = "html")
+#' str(whiteFly)
+#'
+#' da <- droplevels(subset(whiteFly, grepl("BRS", x = cult)))
+#' (model <- glm_cmp(ntot ~ bloco + cult * dias, data = da))
+#' logLik(model)
+#'
+#' #-------------------------------------------
+#' # Conjunto 3
+#' data(eggs)
+#' help(eggs, h = "html")
+#' str(eggs)
+#'
+#' da <- aggregate(ovos ~ periodo + box + luz + gaiola,
+#'                 data = eggs, FUN = sum)
+#' da <- transform(da, off = 10 * 14)
+#' (model <- glm_cmp(ovos ~ offset(log(off)) + periodo + box + luz,
+#'                   data = da))
+#' logLik(model)
+#'
+#' #-------------------------------------------
+#' # Conjunto 4
+#' data(cottonBolls)
+#' help(cottonBolls, h = "html")
+#' str(cottonBolls)
+#'
+#' (model <- glm_cmp(ncap ~ est:(des + I(des^2)), data = cottonBolls))
+#' logLik(model)
+#'
+#' #-------------------------------------------
+#' # Conjunto 5
+#' data(cottonBolls2)
+#' help(cottonBolls2, h = "html")
+#' str(cottonBolls2)
+#'
+#' da <- transform(cottonBolls2, dexp = dexp - mean(range(dexp)))
+#' (model <- glm_cmp(ncapu ~ dexp + I(dexp^2), data = da))
+#' logLik(model)
+#'
 #' @export
-
 glm_cmp <- function(formula, data, ...) {
+    ##-------------------------------------------
     frame <- model.frame(formula, data)
     terms <- attr(frame, "terms")
     ##
@@ -68,5 +122,19 @@ glm_cmp <- function(formula, data, ...) {
     }
     opt <- optim(c(phi, betas), fn = fn, method = "BFGS",
                  hessian = TRUE, ...)
-    return(opt)
+    ##-------------------------------------------
+    fit <- list(
+        call = match.call(),
+        data = list(y = y, X = X, offset = off),
+        nobs = length(y),
+        df = length(opt$par),
+        phi = opt$par[1],
+        betas = opt$par[-1],
+        logLik = -opt$value,
+        niter = opt$count,
+        convergence = opt$convergence,
+        hessian = opt$hessian
+    )
+    class(fit) <- "compois"
+    return(fit)
 }
