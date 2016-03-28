@@ -8,3 +8,4 @@ LICENSE
 roteiro.*.R
 ^data-raw$
 tccPackage.pdf
+TODO.md
