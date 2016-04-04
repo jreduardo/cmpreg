@@ -46,7 +46,7 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #' @param ... Argumentos opcionais do framework de maximização numérica
 #'     \code{\link{optim}}
 #' @return Uma lista de componentes do ajuste. Objeto de classe
-#'     \code{mcglm} cujo funções métodos foram implementadas.
+#'     \code{compois} cujo funções métodos foram implementadas.
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @examples
 #'
@@ -125,9 +125,11 @@ glm_cmp <- function(formula, data, ...) {
     ##-------------------------------------------
     fit <- list(
         call = match.call(),
+        form = formula,
+        terms = terms,
         data = list(y = y, X = X, offset = off),
         nobs = length(y),
-        df = length(opt$par),
+        df = length(y) - length(opt$par),
         phi = opt$par[1],
         betas = opt$par[-1],
         logLik = -opt$value,
