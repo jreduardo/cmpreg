@@ -19,7 +19,7 @@ variáveis descritas na \code{formula}}
 }
 \value{
 Uma lista de componentes do ajuste. Objeto de classe
-    \code{mcglm} cujo funções métodos foram implementadas.
+    \code{compois} cujo funções métodos foram implementadas.
 }
 \description{
 Estima os parâmetros de um modelo COM-Poisson sob a
