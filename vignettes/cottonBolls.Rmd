@@ -1,0 +1,196 @@
+---
+title: "Avaliação do Efeito de Desfolha sobre o Número de Capulhos em
+Plantas de Algodão"
+author: Eduardo E. R. Junior \& Walmes M. Zeviani
+date: '`r format(Sys.time(), "%d de %B de %Y")`'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{cottonBolls Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+
+library(printr)
+library(tccPackage)
+library(lattice)
+library(latticeExtra)
+library(knitr)
+opts_chunk$set(dev.args = list(family = "Palatino"))
+options(width = 68)
+
+```
+
+
+****
+
+Este relatório de análise faz parte de uma série de análises realizadas
+para exemplificação das funções do pacote [`tccPackage`], que se dedica a
+estimação dos modelos de regressão _Conway-Maxwell-Poisson_
+(COM-Poisson). [`tccPackage`] pode ser instalado com:
+
+```{r, eval = FALSE}
+
+library(devtools)
+install_git("https://gitlab.c3sl.ufpr.br/eerj12/tccPackage.git")
+
+```
+
+O pacote contém funções para estimação e análise de dados via
+distribuição COM-Poisson além de alguns conjuntos de dados de
+contagem. Esta vinheta tem por objetivo a análise do conjunto de dados
+denominado `cottonBolls`, cujo tem por característica contagens
+subdispersas. 
+
+# Conjunto de dados #
+
+```{r, echo = FALSE, tyde = FALSE}
+
+## Testando `printr` na renderização de outputs R, e.g. documentation
+data(cottonBolls)
+help(cottonBolls)
+
+```
+
+```{r, echo = FALSE}
+
+panel.beeswarm <- function(x, y, subscripts, r, ...){
+    xx <- x; yy <- y
+    aux <- by(cbind(yy, xx, subscripts), xx,
+              function(i){
+                  or <- order(i[,1])
+                  ys <- i[or,1]
+                  yt <- table(ys)
+                  dv <- sapply(unlist(yt),
+                               function(j){
+                                   seq(1,j,l=j)-(j+1)/2
+                               })
+                  if(!is.list(dv)){ dv <- as.list(dv) }
+                  xs <- i[or,2]+r*do.call(c, dv)
+                  cbind(x=xs, y=ys, subscripts[or])
+              })
+    aux <- do.call(rbind, aux)
+    panel.xyplot(aux[,1], aux[,2], subscripts=aux[,3], ...)
+}
+
+xyplot(ncap ~ des | est,
+       strip = strip.custom(bg = "gray90"),
+       grid = TRUE,
+       as.table = TRUE,
+       data = cottonBolls,
+       jitter.x = TRUE,
+       pch = 19,
+       panel = panel.beeswarm, r = 0.05)
+
+# Média e variância amostral para cada unidade experimental
+mv <- aggregate(ncap ~ est + des, data = cottonBolls,
+                FUN = function(x) c(mean = mean(x), var = var(x)))
+xlim <- ylim <- extendrange(c(mv$ncap), f = 0.05)
+
+# Evidência de subdispersão
+xyplot(ncap[, "var"] ~ ncap[, "mean"],
+       data = mv,
+       xlim = xlim,
+       ylim = ylim,
+       ylab = "Variância Amostral",
+       xlab = "Média Amostral",
+       panel = function(x, y) {
+           panel.xyplot(x, y, type = c("p", "r", "g"), pch = 19)
+           panel.abline(a = 0, b = 1, lty = 2)
+       })
+
+```
+
+## Ajustando os modelos ##
+
+### Preditores ###
+
+```{r}
+
+## Preditores considerados
+f0 <- ncap ~ 1
+f1 <- ncap ~ des + I(des^2)
+f2 <- ncap ~ est:des + I(des^2)
+f3 <- ncap ~ est:(des + I(des^2))
+
+```
+
+### Ajuste COM-Poisson ###
+
+```{r}
+
+## Modelos COM-Poisson
+m0CMP <- glm_cmp(f0, data = cottonBolls)
+m1CMP <- glm_cmp(f1, data = cottonBolls)
+m2CMP <- glm_cmp(f2, data = cottonBolls)
+m3CMP <- glm_cmp(f3, data = cottonBolls)
+
+```
+
+```{r}
+
+## Teste de razão de verossimilhança
+anova(m0CMP, m1CMP, m2CMP, m3CMP)
+
+```
+
+```{r}
+
+## Resumo do modelo considerado
+summary(m3CMP)
+
+```
+
+```{r}
+
+## Avaliando (ingenuamente) os resíduos
+xyplot(residuals(m3CMP) ~ fitted(m3CMP),
+       type = c("p", "smooth", "g"), pch = 19)
+
+```
+
+```{r}
+
+## Verificando a correlação entre os parâmetros do modelo
+library(corrplot, quietly = TRUE)
+corr <- cov2cor(vcov(m3CMP))
+corrplot.mixed(corr, lower = "number", upper = "ellipse",
+               diag = "l", tl.pos = "lt", tl.col = "black",
+               tl.cex = 0.8, col = brewer.pal(9, "Greys")[-(1:3)])
+
+```
+
+```{r}
+
+## Predizendo novos valores de forma intervalar
+pred <- expand.grid(est = levels(cottonBolls$est),
+                    des = seq(0, 1, l = 20))
+aux <- predict(m3CMP, newdata = pred,
+               type = "response", interval = "confidence")
+pred <- cbind(pred, aux)
+str(pred)
+
+```
+
+```{r}
+
+## Exibindo a predição graficamente
+xyplot(ncap ~ des | est,
+       strip = strip.custom(bg = "gray90"),
+       grid = TRUE,
+       as.table = TRUE,
+       data = cottonBolls,
+       jitter.x = TRUE,
+       pch = 19) +
+    as.layer(
+        xyplot(fit + lwr + upr ~ des | est, data = pred,
+               type = "l", col = 1, lty = c(1, 2, 2), lwd = c(2, 1, 1))
+    )
+
+
+```
+
+<!---------------------------------------------------------------------- -->
+
+[`tccPackage`]: https://gitlab.c3sl.ufpr.br/eerj12/tccPackage/
