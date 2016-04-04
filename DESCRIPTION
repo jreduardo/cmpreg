@@ -16,8 +16,13 @@ Depends:
 Imports:
     compoisson (>= 0.3)
 Suggests:
+    corrplot,
+    knitr,
     lattice,
-    latticeExtra
+    latticeExtra,
+    printr,
+    rmarkdown
 License: GPL
 Encoding: UTF-8
 RoxygenNote: 5.0.1
+VignetteBuilder: knitr
