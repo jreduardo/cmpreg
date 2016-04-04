@@ -13,6 +13,8 @@ Description: O pacote contém funções para ajuste dos modelos de
     modelos ajustados.
 Depends:
     R (>= 3.2.3)
+Imports:
+    compoisson (>= 0.3)
 Suggests:
     lattice,
     latticeExtra
