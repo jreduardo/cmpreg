@@ -17,11 +17,10 @@
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @seealso \code{\link[tccPackage]{cmp}}
 
-ll_cmp <- function(betas, phi, y, X, offset = NULL){
+llcmp <- function(betas, phi, y, X, offset = NULL){
     nu <- exp(phi)
-    Xb <- X %*% betas
-    if (!is.null(offset)) 
-        Xb <- Xb + offset
+    if (is.null(offset)) offset <- 0
+    Xb <- X %*% betas + offset
     kernel <- sum(y * Xb - nu * lfactorial(y))
     ## Obtendo a constante normatizadora Z.
     ## WARNING: Verificar a qtde de termos para a soma infinita
@@ -49,7 +48,8 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #'     \code{compois} cujo funções métodos foram implementadas.
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @examples
-#'
+#' 
+#' \dontrun{
 #' #-------------------------------------------
 #' # Conjunto 1
 #' data(soyaBeans)
@@ -101,8 +101,9 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #' da <- transform(cottonBolls2, dexp = dexp - mean(range(dexp)))
 #' (model <- cmp(ncapu ~ dexp + I(dexp^2), data = da))
 #' logLik(model)
-#'
+#' }
 #' @export
+#'
 cmp <- function(formula, data, ...) {
     ##-------------------------------------------
     frame <- model.frame(formula, data)
@@ -118,7 +119,7 @@ cmp <- function(formula, data, ...) {
     phi <- 0
     ##
     fn <- function(params) {
-        - ll_cmp(params[-1], params[1], y = y, X = X, offset = off)
+        - llcmp(params[-1], params[1], y = y, X = X, offset = off)
     }
     opt <- optim(c(phi, betas), fn = fn, method = "BFGS",
                  hessian = TRUE, ...)

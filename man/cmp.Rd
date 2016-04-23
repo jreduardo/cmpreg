@@ -29,6 +29,7 @@ Estima os parâmetros de um modelo COM-Poisson sob a
 }
 \examples{
 
+\dontrun{
 #-------------------------------------------
 # Conjunto 1
 data(soyaBeans)
@@ -80,7 +81,7 @@ str(cottonBolls2)
 da <- transform(cottonBolls2, dexp = dexp - mean(range(dexp)))
 (model <- cmp(ncapu ~ dexp + I(dexp^2), data = da))
 logLik(model)
-
+}
 }
 \author{
 Eduardo E. R. Junior, \email{edujrrib@gmail.com}
