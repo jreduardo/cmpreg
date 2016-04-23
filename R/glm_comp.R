@@ -15,7 +15,7 @@
 #' @return O valor da log-verossimilhança do modelo
 #'     Conway-Maxwell-Poisson com os parâmetros e dados informados
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
-#' @seealso \code{\link[tccPackage]{glm_cmp}}
+#' @seealso \code{\link[tccPackage]{cmp}}
 
 ll_cmp <- function(betas, phi, y, X, offset = NULL){
     nu <- exp(phi)
@@ -57,7 +57,7 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #' str(soyaBeans)
 #'
 #' da <- transform(soyaBeans, K = factor(potassio), A = factor(agua))
-#' (model <- glm_cmp(nv ~ bloco + K * A, data = da))
+#' (model <- cmp(nv ~ bloco + K * A, data = da))
 #' logLik(model)
 #'
 #' #-------------------------------------------
@@ -67,7 +67,7 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #' str(whiteFly)
 #'
 #' da <- droplevels(subset(whiteFly, grepl("BRS", x = cult)))
-#' (model <- glm_cmp(ntot ~ bloco + cult * dias, data = da))
+#' (model <- cmp(ntot ~ bloco + cult * dias, data = da))
 #' logLik(model)
 #'
 #' #-------------------------------------------
@@ -79,7 +79,7 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #' da <- aggregate(ovos ~ periodo + box + luz + gaiola,
 #'                 data = eggs, FUN = sum)
 #' da <- transform(da, off = 10 * 14)
-#' (model <- glm_cmp(ovos ~ offset(log(off)) + periodo + box + luz,
+#' (model <- cmp(ovos ~ offset(log(off)) + periodo + box + luz,
 #'                   data = da))
 #' logLik(model)
 #'
@@ -89,7 +89,7 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #' help(cottonBolls, h = "html")
 #' str(cottonBolls)
 #'
-#' (model <- glm_cmp(ncap ~ est:(des + I(des^2)), data = cottonBolls))
+#' (model <- cmp(ncap ~ est:(des + I(des^2)), data = cottonBolls))
 #' logLik(model)
 #'
 #' #-------------------------------------------
@@ -99,11 +99,11 @@ ll_cmp <- function(betas, phi, y, X, offset = NULL){
 #' str(cottonBolls2)
 #'
 #' da <- transform(cottonBolls2, dexp = dexp - mean(range(dexp)))
-#' (model <- glm_cmp(ncapu ~ dexp + I(dexp^2), data = da))
+#' (model <- cmp(ncapu ~ dexp + I(dexp^2), data = da))
 #' logLik(model)
 #'
 #' @export
-glm_cmp <- function(formula, data, ...) {
+cmp <- function(formula, data, ...) {
     ##-------------------------------------------
     frame <- model.frame(formula, data)
     terms <- attr(frame, "terms")

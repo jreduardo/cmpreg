@@ -8,7 +8,7 @@
   ...)
 }
 \arguments{
-\item{object}{O objeto produzido por \code{\link{glm_cmp}}}
+\item{object}{O objeto produzido por \code{\link{cmp}}}
 
 \item{type}{Tipo de resíduo a ser calculado}
 

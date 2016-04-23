@@ -7,7 +7,7 @@
 \method{print}{compois}(x, ...)
 }
 \arguments{
-\item{x}{O objeto produzido por \code{\link{glm_cmp}}}
+\item{x}{O objeto produzido por \code{\link{cmp}}}
 
 \item{...}{Argumentos adicionais para métodos S3}
 }

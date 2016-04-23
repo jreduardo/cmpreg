@@ -7,7 +7,7 @@
 \method{logLik}{compois}(object, ...)
 }
 \arguments{
-\item{object}{O objeto produzido por \code{\link{glm_cmp}}}
+\item{object}{O objeto produzido por \code{\link{cmp}}}
 
 \item{...}{Argumentos adicionais para métodos S3}
 }

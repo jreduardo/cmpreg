@@ -37,6 +37,6 @@ A função de log-verossimilhança toma a forma: \deqn{-Z - y *
 Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 }
 \seealso{
-\code{\link[tccPackage]{glm_cmp}}
+\code{\link[tccPackage]{cmp}}
 }
 

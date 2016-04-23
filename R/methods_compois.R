@@ -3,7 +3,7 @@
 #' @description Exibe a log-verossimilhança calculada para o modelo
 #'     Conway-Maxwell-Poisson ajustado em objetos de classe
 #'     \code{compois}.
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param ... Argumentos adicionais para métodos S3
 #' @return Um objeto de classe \code{logLik}
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
@@ -21,7 +21,7 @@ logLik.compois <- function(object, ...) {
 #' @name print.compois
 #' @description Exibe o ajuste do modelo Conway-Maxwell-Poisson para
 #'     objetos de classe \code{compois}
-#' @param x O objeto produzido por \code{\link{glm_cmp}}
+#' @param x O objeto produzido por \code{\link{cmp}}
 #' @param ... Argumentos adicionais para métodos S3
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @export
@@ -45,7 +45,7 @@ print.compois <- function(x, ...) {
 #' @name vcov.compois
 #' @description Calcula a matriz de variância e covariância numérica de
 #'     um modelo COM-Poisson
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param ... Argumentos adicionais para métodos S3
 #' @return Uma matriz nomeada, \code{matrix} com as variâncias e
 #'     covariâncias entre os parâmetros estimados
@@ -59,7 +59,7 @@ vcov.compois <- function(object, ...) {
 #' @title Estimativas dos parâmetros
 #' @name coef.compois
 #' @description Extrai os coeficientes do modelo COM-Poisson ajustado
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param ... Argumentos adicionais para métodos S3
 #' @return Uma lista, \code{list} nomeada em que
 #' \describe{
@@ -86,7 +86,7 @@ coef.compois <- function(object, ...) {
 #'     contagem. Intervalos de confiança para a média da contagem ou
 #'     para os parâmetros \eqn{\lambda}'s estimados também estão
 #'     implementados.
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param newdata Valores das covariáveis para predição
 #' @param type A escala da predição. Assume valores \code{link} para a
 #'     escala do parâmetro \eqn{\lambda} e \code{response} para escala
@@ -158,7 +158,7 @@ predict.compois <- function(object, newdata,
 #' @title Valores Ajustados pelo Modelo Conway-Maxwell-Poisson
 #' @name fitted.compois
 #' @description Contagens ajustadas pelo Modelo Conway-Maxwell-Poisson
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param ... Argumentos adicionais para métodos S3
 #' @return Um vetor, \code{vector} de valores de contagem ajustados pelo
 #'     modelo COM-Poisson
@@ -173,7 +173,7 @@ fitted.compois <- function(object, ...) {
 #' @title Resíduos do Modelo Conway-Maxwell-Poisson Ajustado
 #' @name residuals.compois
 #' @description Calcula os resíduos do modelo ajustado
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param type Tipo de resíduo a ser calculado
 #' @param ... Argumentos adicionais para métodos S3
 #' @return Um vetor, \code{vector} de resíduos calculados sob o modelo
@@ -193,7 +193,7 @@ residuals.compois <- function(object,
 #' @title Resumo do Modelo Conway-Maxwell-Poisson Ajustado
 #' @name summary.compois
 #' @description Calcula as estatísticas resumo do modelo ajustado
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param ... Argumentos adicionais para métodos S3
 #' @return Uma lista, \code{list} de componentes utilizados para resumir
 #'     o ajuste do modelo. Objeto de classe \code{summary.compois}
@@ -273,7 +273,7 @@ print.summary.compois <- function(x, ...) {
 #'     cujo serão removidos os efeitos preditores um a um. Caso
 #'     executado com mais de um modelo o TRV será feito entre os modelos
 #'     informados.
-#' @param object O objeto produzido por \code{\link{glm_cmp}}
+#' @param object O objeto produzido por \code{\link{cmp}}
 #' @param ... Demais modelos a serem submetidos ao teste de razão de
 #'     verossimilhança
 #' @return Uma lista, \code{list} de componentes utilizados para exibir

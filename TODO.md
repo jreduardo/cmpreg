@@ -2,8 +2,8 @@
 
 ## Modelo GLM COM-Poisson Convencional ##
 
- - [x] Acomodar _ofsset_ no modelo COM-Poisson `glm_cmp`;
- - [ ] Adotar uma classe para o objeto retornado pela função `glm_cmp` e,
+ - [x] Acomodar _ofsset_ no modelo COM-Poisson `cmp`;
+ - [ ] Adotar uma classe para o objeto retornado pela função `cmp` e,
    baseando-se na `MASS::glm.nb`, criar as funções método:
        - [x] `print.compois`:
        - [ ] `summary`

@@ -8,7 +8,7 @@
   interval = c("none", "confidence"), level = 0.95, ...)
 }
 \arguments{
-\item{object}{O objeto produzido por \code{\link{glm_cmp}}}
+\item{object}{O objeto produzido por \code{\link{cmp}}}
 
 \item{newdata}{Valores das covariáveis para predição}
 

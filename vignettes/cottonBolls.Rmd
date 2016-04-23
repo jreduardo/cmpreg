@@ -121,10 +121,10 @@ f3 <- ncap ~ est:(des + I(des^2))
 ```{r}
 
 ## Modelos COM-Poisson
-m0CMP <- glm_cmp(f0, data = cottonBolls)
-m1CMP <- glm_cmp(f1, data = cottonBolls)
-m2CMP <- glm_cmp(f2, data = cottonBolls)
-m3CMP <- glm_cmp(f3, data = cottonBolls)
+m0CMP <- cmp(f0, data = cottonBolls)
+m1CMP <- cmp(f1, data = cottonBolls)
+m2CMP <- cmp(f2, data = cottonBolls)
+m3CMP <- cmp(f3, data = cottonBolls)
 
 ```
 

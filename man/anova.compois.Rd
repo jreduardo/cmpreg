@@ -7,7 +7,7 @@
 \method{anova}{compois}(object, ...)
 }
 \arguments{
-\item{object}{O objeto produzido por \code{\link{glm_cmp}}}
+\item{object}{O objeto produzido por \code{\link{cmp}}}
 
 \item{...}{Demais modelos a serem submetidos ao teste de razão de
 verossimilhança}
