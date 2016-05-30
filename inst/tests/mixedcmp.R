@@ -176,7 +176,7 @@ densityplot(~ranef)
 eta <- coef(model.cmp)[1] + ranef
 mu2 <- sapply(eta, function(loglambda) {
     x <- 0:50
-    px <- dcmp2(x, loglambda = loglambda, phi = coef.cmp[3],
+    px <- dcmp(x, loglambda = loglambda, phi = coef.cmp[3],
                 sumto = 50, log = FALSE)
     sum(x*px)    
 })
