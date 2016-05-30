@@ -33,13 +33,15 @@ llcmp <- function(params, y, X, sumto){
 ##----------------------------------------------------------------------
 ## Densidade de probabilidade do modelo COM-Poisson
 ##----------------------------------------------------------------------
-dcmp <- function (y, loglambda, phi, sumto, log = FALSE) {
-    py <- sapply(y, function(yi) {
-        -llcmp(c(phi, loglambda), y = yi, X = 1, sumto = sumto)
-    })
-    if(!log) py <- exp(py)
-    return(py)
-}
+dcmp <- Vectorize(
+    FUN = function(y, loglambda, phi, sumto, log = FALSE) {
+        py <- sapply(y, function(yi) {
+            -llcmp(c(phi, loglambda), y = yi, X = 1, sumto = sumto)
+        })
+        if(!log) py <- exp(py)
+        return(py)
+    }, vectorize.args = c("y", "loglambda", "phi")
+)
 
 ##----------------------------------------------------------------------
 ## Ajuste de modelos COM-Poisson, com layout similiar a glm
