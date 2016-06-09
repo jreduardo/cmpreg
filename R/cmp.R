@@ -13,7 +13,7 @@
 #'     entre duas iterações. O valor padrão é 1e-3
 #' @param maxit Número máximo de iterações a serem realizadas pelo
 #'     algoritmo. Se este número for atingido e o critério de tolerância
-#'     não for atendido, uma mensagem de aviso será exibida 
+#'     não for atendido, uma mensagem de aviso será exibida
 #' @return O valor da constante de normalização, \eqn{Z(\lambda,
 #'     \phi)} da distribuição COM-Poisson
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
@@ -23,24 +23,24 @@
 #' data(cottonBolls)
 #' formula <- ncap ~ est:(des + I(des^2))
 #' data <- cottonBolls
-#' 
+#'
 #' frame <- model.frame(formula, data)
 #' terms <- attr(frame, "terms")
 #' y <- model.response(frame)
 #' X <- model.matrix(terms, frame)
-#' 
+#'
 #' betas <- coef(glm(formula, data = data, family = poisson))
 #' phi <- 0
 #' Xb <- X %*% betas
 #' kernel <- sum(y * Xb - exp(phi) * lfactorial(y))
-#' 
+#'
 #' ## --- Utilizando a soma até 150
 #' i <- 0:150
 #' zs <- sapply(Xb, function(lam)
 #'     sum(exp(i * lam - exp(phi) * lfactorial(i))))
 #' (Z <- sum(log(zs)))
 #' (ll <- kernel - Z)
-#' 
+#'
 #' ## --- Utilizando a computez, com critério de parada
 #' zs1 <- sapply(exp(Xb), tccPackage:::computez, phi = phi)
 #' (Z1 <- sum(log(zs1)))
@@ -83,21 +83,21 @@ computez <- function(lambda, phi, tol = 1e-3, maxit = 1e3) {
 #'     na distrbuição Conway-Maxwell-Poisson \eqn{\phi = \log{\nu}}
 #' @param y Um vetor de contagens, considerado como variável resposta
 #' @param X A matriz de delineamento do modelo
-#' @param offset Um vetor de valores a serem adicionados ao preditor
-#'     linear
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo da constante normalizadora Z.
 #' @return O valor da log-verossimilhança do modelo
 #'     Conway-Maxwell-Poisson com os parâmetros e dados informados
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @seealso \code{\link[tccPackage]{cmp}}
 
-llcmp <- function(betas, phi, y, X, offset = NULL){
+llcmp <- function(betas, phi, y, X, sumto = NULL){
     nu <- exp(phi)
-    if (is.null(offset)) offset <- 0
-    Xb <- X %*% betas + offset
+    Xb <- X %*% betas
     kernel <- sum(y * Xb - nu * lfactorial(y))
     ## Obtendo a constante normatizadora Z.
     ## WARNING: Verificar a qtde de termos para a soma infinita
-    i <- 1:150
+    if (is.null(sumto)) sumto <- max(y)^1.2
+    i <- 1:sumto
     zs <- sapply(Xb, function(lam)
         sum(exp(i * lam - nu * lfactorial(i))))
     Z <- sum(log(zs + 1))
@@ -111,6 +111,64 @@ llcmp <- function(betas, phi, y, X, offset = NULL){
     return(ll)
 }
 
+#' @title Probabilidades do Modelo Conway-Maxwell-Poisson
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#' @export
+#' @description Calcula as probabilidades para uma variável aleatória
+#'     distribuída conforme modelo COM-Poisson.
+#'
+#' \deqn{p(y,\lambda,\nu) =
+#'     \frac{\lambda^y}{(y!)^\nu Z(\lambda, \nu)}
+#' }
+#'
+#' em que \eqn{Z(\lambda, \nu)} é a constante de normalização definida
+#'     por \eqn{\sum_{j=0}^{\infty} \frac{\lambda^j}{(j!)^\nu}}.  Nesta
+#'     implementação o número de incrementos considerados para cálculo
+#'     dessa constante é definido por \code{sumto}. \eqn{\lambda > 0} e
+#'     \eqn{\nu \geq 0} são os parâmetros da distribuição.
+#'
+#' @param y Valor da variável de contagem.
+#' @param lambda Valor do parâmetro \eqn{\lambda} da distribuição
+#'     COM-Poisson.
+#' @param nu Valor do parâmetro \eqn{\nu} da distribuição COM-Poisson.
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo da constante normalizadora Z.
+#' @examples
+#' dpois(5, lambda = 5)
+#' dcmp(5, lambda = 5, nu = 1, sumto = 20)
+#'
+#' probs <- data.frame(y = 0:30)
+#' within(probs, {
+#'     py0 <- dpois(y, lambda = 15)
+#'     py1 <- dcmp(y, lambda = 15, nu = 1, sumto = 50)
+#'     py2 <- dcmp(y, lambda = 915, nu = 2.5, sumto = 50)
+#'     py3 <- dcmp(y, lambda = 2.2, nu = 0.3, sumto = 50)
+#'     plot(py0 ~ y, type = "h",
+#'          ylim = c(0, max(c(py0, py2, py3))),
+#'          ylab = expression(Pr(Y == y)))
+#'     points(y + 0.1, py1, type = "h", col = 2)
+#'     points(y - 0.3, py2, type = "h", col = 3)
+#'     points(y + 0.3, py3, type = "h", col = 4)
+#'     legend("topleft", bty = "n",
+#'            col = c(1:4), lty = 1,
+#'            legend = expression(
+#'                Poisson(lambda == 15),
+#'                CMP(lambda == 15, nu == 1),
+#'                CMP(lambda == 915, nu == 2.5),
+#'                CMP(lambda == 2.2, nu == 0.3)))
+#' })
+
+dcmp <- Vectorize(
+    FUN = function(y, loglambda, phi, sumto, log = FALSE) {
+        py <- sapply(y, function(yi) {
+            llcmp(betas = loglambda, phi = phi, y = yi, X = 1,
+                  sumto = sumto)
+        })
+        if (!log)
+            py <- exp(py)
+        return(py)
+    }, vectorize.args = c("y", "loglambda", "phi"))
+
 #' @title Estimação do Modelo Conway-Maxwell-Poisson
 #' @description Estima os parâmetros de um modelo COM-Poisson sob a
 #'     otimização da função de log-verossimilhança. A sintaxe
@@ -121,69 +179,16 @@ llcmp <- function(betas, phi, y, X, offset = NULL){
 #'     \code{\link{offset}}
 #' @param data Um objeto de classe \code{data.frame}, cujo contém as
 #'     variáveis descritas na \code{formula}
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo da constante normalizadora Z.
 #' @param ... Argumentos opcionais do framework de maximização numérica
 #'     \code{\link{optim}}
 #' @return Uma lista de componentes do ajuste. Objeto de classe
 #'     \code{compois} cujo funções métodos foram implementadas.
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
-#' @examples
-#' 
-#' \dontrun{
-#' #-------------------------------------------
-#' # Conjunto 1
-#' data(soyaBeans)
-#' help(soyaBeans, h = "html")
-#' str(soyaBeans)
-#'
-#' da <- transform(soyaBeans, K = factor(potassio), A = factor(agua))
-#' (model <- cmp(nv ~ bloco + K * A, data = da))
-#' logLik(model)
-#'
-#' #-------------------------------------------
-#' # Conjunto 2
-#' data(whiteFly)
-#' help(whiteFly, h = "html")
-#' str(whiteFly)
-#'
-#' da <- droplevels(subset(whiteFly, grepl("BRS", x = cult)))
-#' (model <- cmp(ntot ~ bloco + cult * dias, data = da))
-#' logLik(model)
-#'
-#' #-------------------------------------------
-#' # Conjunto 3
-#' data(eggs)
-#' help(eggs, h = "html")
-#' str(eggs)
-#'
-#' da <- aggregate(ovos ~ periodo + box + luz + gaiola,
-#'                 data = eggs, FUN = sum)
-#' da <- transform(da, off = 10 * 14)
-#' (model <- cmp(ovos ~ offset(log(off)) + periodo + box + luz,
-#'                   data = da))
-#' logLik(model)
-#'
-#' #-------------------------------------------
-#' # Conjunto 4
-#' data(cottonBolls)
-#' help(cottonBolls, h = "html")
-#' str(cottonBolls)
-#'
-#' (model <- cmp(ncap ~ est:(des + I(des^2)), data = cottonBolls))
-#' logLik(model)
-#'
-#' #-------------------------------------------
-#' # Conjunto 5
-#' data(cottonBolls2)
-#' help(cottonBolls2, h = "html")
-#' str(cottonBolls2)
-#'
-#' da <- transform(cottonBolls2, dexp = dexp - mean(range(dexp)))
-#' (model <- cmp(ncapu ~ dexp + I(dexp^2), data = da))
-#' logLik(model)
-#' }
 #' @export
-#'
-cmp <- function(formula, data, ...) {
+
+cmp <- function(formula, data, sumto = NULL, ...) {
     ##-------------------------------------------
     frame <- model.frame(formula, data)
     terms <- attr(frame, "terms")
@@ -191,14 +196,16 @@ cmp <- function(formula, data, ...) {
     y <- model.response(frame)
     X <- model.matrix(terms, frame)
     off <- model.offset(frame)
+    if(!is.null(model.offset(frame))) {
+        stop("Este modelo ainda nao suporta offset")
+    }
     ##
-    poissonModel <- glm(formula, data = data,
-                        family = poisson)
-    betas <- poissonModel$coefficients
-    phi <- 0
+    m0 <- glm(formula, data = data, family = poisson)
+    betas.init <- m0$coefficients
+    phi.init <- -log(sum(resid(m0, type = "pearson")^2)/m0$df.residual)
     ##
     fn <- function(params) {
-        - llcmp(params[-1], params[1], y = y, X = X, offset = off)
+        - llcmp(params[-1], params[1], y = y, X = X, sumto = sumto)
     }
     opt <- optim(c(phi, betas), fn = fn, method = "BFGS",
                  hessian = TRUE, ...)
