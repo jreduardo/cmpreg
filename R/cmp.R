@@ -128,21 +128,25 @@ llcmp <- function(betas, phi, y, X, sumto = NULL){
 #'     \eqn{\nu \geq 0} são os parâmetros da distribuição.
 #'
 #' @param y Valor da variável de contagem.
-#' @param lambda Valor do parâmetro \eqn{\lambda} da distribuição
-#'     COM-Poisson.
-#' @param nu Valor do parâmetro \eqn{\nu} da distribuição COM-Poisson.
+#' @param loglambda Valor do parâmetro tranformado \eqn{\log(\lambda)}
+#'     da distribuição COM-Poisson.
+#' @param phi Valor do parâmetro \eqn{\nu}, sob a reparametrização
+#'     \eqn{\phi = \log(\nu)} da distribuição COM-Poisson.
 #' @param sumto Número de incrementos a serem considerados para a
 #'     cálculo da constante normalizadora Z.
+#' @param log Argumento lógico qque indica se a densidade da COM-Poisson
+#'     será retornada na escala logarítmica, seu valor padrão é
+#'     \code{FALSE}.
 #' @examples
 #' dpois(5, lambda = 5)
-#' dcmp(5, lambda = 5, nu = 1, sumto = 20)
+#' dcmp(5, loglambda = log(5), phi = log(1), sumto = 20)
 #'
 #' probs <- data.frame(y = 0:30)
 #' within(probs, {
 #'     py0 <- dpois(y, lambda = 15)
-#'     py1 <- dcmp(y, lambda = 15, nu = 1, sumto = 50)
-#'     py2 <- dcmp(y, lambda = 915, nu = 2.5, sumto = 50)
-#'     py3 <- dcmp(y, lambda = 2.2, nu = 0.3, sumto = 50)
+#'     py1 <- dcmp(y, loglambda = log(15), phi = log(1), sumto = 50)
+#'     py2 <- dcmp(y, loglambda = log(915), phi = log(2.5), sumto = 50)
+#'     py3 <- dcmp(y, loglambda = log(2.2), phi = log(0.3), sumto = 50)
 #'     plot(py0 ~ y, type = "h",
 #'          ylim = c(0, max(c(py0, py2, py3))),
 #'          ylab = expression(Pr(Y == y)))
@@ -207,7 +211,7 @@ cmp <- function(formula, data, sumto = NULL, ...) {
     fn <- function(params) {
         - llcmp(params[-1], params[1], y = y, X = X, sumto = sumto)
     }
-    opt <- optim(c(phi, betas), fn = fn, method = "BFGS",
+    opt <- optim(c(phi.init, betas.init), fn = fn, method = "BFGS",
                  hessian = TRUE, ...)
     ##-------------------------------------------
     fit <- list(

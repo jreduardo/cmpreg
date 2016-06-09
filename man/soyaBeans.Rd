@@ -7,15 +7,15 @@
 \format{Um \code{data.frame} com 75 observações e 10 variáveis.
     \describe{
 
-\item{\code{potassio}}{Número inteiro que representa a adubação
+\item{\code{K}}{Número inteiro que representa a adubação
     potássica experimentada em cada parcela. Foram 5 nivéis de
     adubação considerados.}
 
-\item{\code{agua}}{Numérico que representa o nível de água do solo
+\item{\code{umid}}{Numérico que representa o nível de água do solo
     que as parcelas foram cultivadas. Foram 3 níveis experimentados
     pouca água, água em quantidade ideal, água em abundância.}
 
-\item{\code{bloco}}{Fator com 5 níveis que representam os blocos
+\item{\code{bloc}}{Fator com 5 níveis que representam os blocos
     utilizados para controle de variação local.}
 
 \item{\code{rend}}{Rendimento de grãos.}
@@ -26,11 +26,11 @@
 
 \item{\code{pgrao}}{Conteúdo de fósforo no grão.}
 
-\item{\code{ts}}{Total de sementes por planta.}
+\item{\code{ngra}}{Total de sementes por planta.}
 
-\item{\code{nvi}}{Número de vagens inviáveis.}
+\item{\code{nvagi}}{Número de vagens inviáveis.}
 
-\item{\code{nv}}{Número de vagens total.}
+\item{\code{nvag}}{Número de vagens total.}
 
 }}
 \description{
@@ -54,17 +54,25 @@ splom(soyaBeans[, -c(1:3)],
       type = c("p", "smooth"),
       grid = TRUE)
 
-# Para variável número de vagens em função dos fatores experimentais
-xyplot(nv ~ potassio | factor(agua),
+## Para variável número de vagens em função dos fatores experimentais
+xyplot(nvag ~ K | factor(umid),
        data = soyaBeans,
        type = c("p", "spline"),
        grid = TRUE,
        as.table = TRUE,
        layout = c(NA, 1))
 
-# Para variável número de vagens inviáveis em função dos fatores
-# experimentais
-xyplot(nvi ~ potassio | factor(agua),
+## Para variável número de vagens em função dos fatores experimentais
+xyplot(ngra ~ K | factor(umid),
+       data = soyaBeans,
+       type = c("p", "spline"),
+       grid = TRUE,
+       as.table = TRUE,
+       layout = c(NA, 1))
+
+## Para variável número de vagens inviáveis em função dos fatores
+## experimentais
+xyplot(nvagi ~ K | factor(umid),
        data = soyaBeans,
        type = c("p", "spline"),
        grid = TRUE,

@@ -26,13 +26,13 @@
 #' @import lattice
 #' @examples
 #'
-#' data(capdesfo)
-#' str(capdesfo)
+#' data(cottonBolls)
+#' str(cottonBolls)
 #'
 #' library(lattice)
 #'
 #' # x11(width = 7, height = 2.8)
-#' xyplot(ncap ~ des | est, data = capdesfo,
+#' xyplot(ncap ~ des | est, data = cottonBolls,
 #'        layout = c(5, 1), as.table = TRUE,
 #'        type = c("p", "smooth"), col = 1, col.line = "gray50",
 #'        xlim = extendrange(c(0:1), f = 0.15),
@@ -41,14 +41,14 @@
 #'        spread = 0.07, panel = panel.beeswarm)
 #'
 #' # x11(width = 7, height = 2.8)
-#' xyplot(ncap ~ est | factor(des), data = capdesfo,
+#' xyplot(ncap ~ est | factor(des), data = cottonBolls,
 #'        layout = c(5, 1), as.table = TRUE,
 #'        type = c("p", "smooth"), col = 1, col.line = "gray50",
 #'        xlab = "Fase de desenvolvimento da planta",
 #'        ylab = "Número de capulhos produzidos",
 #'        scales = list(x = list(
-#'                          at = 1:nlevels(capdesfo$est),
-#'                          labels = substr(levels(capdesfo$est),
+#'                          at = 1:nlevels(cottonBolls$est),
+#'                          labels = substr(levels(cottonBolls$est),
 #'                                          start = 1, stop = 3))),
 #'        spread = 0.35, panel = panel.beeswarm)
 #'

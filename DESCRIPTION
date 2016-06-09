@@ -14,13 +14,15 @@ Description: O pacote contém funções para ajuste dos modelos de
 Depends:
     R (>= 3.2.3)
 Imports:
-    compoisson (>= 0.3)
+	lattice,
+	lme4,
+	mvtnorm,
+	compoisson,
+	bbmle
 Suggests:
     corrplot,
     knitr,
-    lattice,
     latticeExtra,
-    printr,
     rmarkdown
 License: GPL
 Encoding: UTF-8

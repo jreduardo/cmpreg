@@ -4,7 +4,7 @@
 \alias{cmp}
 \title{Estimação do Modelo Conway-Maxwell-Poisson}
 \usage{
-cmp(formula, data, ...)
+cmp(formula, data, sumto = NULL, ...)
 }
 \arguments{
 \item{formula}{Um objeto da classe \code{\link{formula}}. Se
@@ -13,6 +13,9 @@ necessária a inclusão de \emph{offset} deve-se indicá-lo como
 
 \item{data}{Um objeto de classe \code{data.frame}, cujo contém as
 variáveis descritas na \code{formula}}
+
+\item{sumto}{Número de incrementos a serem considerados para a
+cálculo da constante normalizadora Z.}
 
 \item{...}{Argumentos opcionais do framework de maximização numérica
 \code{\link{optim}}}
@@ -26,62 +29,6 @@ Estima os parâmetros de um modelo COM-Poisson sob a
     otimização da função de log-verossimilhança. A sintaxe
     assemelha-se com a função \code{\link{glm}} (Generalized Linear
     Models).
-}
-\examples{
-
-\dontrun{
-#-------------------------------------------
-# Conjunto 1
-data(soyaBeans)
-help(soyaBeans, h = "html")
-str(soyaBeans)
-
-da <- transform(soyaBeans, K = factor(potassio), A = factor(agua))
-(model <- cmp(nv ~ bloco + K * A, data = da))
-logLik(model)
-
-#-------------------------------------------
-# Conjunto 2
-data(whiteFly)
-help(whiteFly, h = "html")
-str(whiteFly)
-
-da <- droplevels(subset(whiteFly, grepl("BRS", x = cult)))
-(model <- cmp(ntot ~ bloco + cult * dias, data = da))
-logLik(model)
-
-#-------------------------------------------
-# Conjunto 3
-data(eggs)
-help(eggs, h = "html")
-str(eggs)
-
-da <- aggregate(ovos ~ periodo + box + luz + gaiola,
-                data = eggs, FUN = sum)
-da <- transform(da, off = 10 * 14)
-(model <- cmp(ovos ~ offset(log(off)) + periodo + box + luz,
-                  data = da))
-logLik(model)
-
-#-------------------------------------------
-# Conjunto 4
-data(cottonBolls)
-help(cottonBolls, h = "html")
-str(cottonBolls)
-
-(model <- cmp(ncap ~ est:(des + I(des^2)), data = cottonBolls))
-logLik(model)
-
-#-------------------------------------------
-# Conjunto 5
-data(cottonBolls2)
-help(cottonBolls2, h = "html")
-str(cottonBolls2)
-
-da <- transform(cottonBolls2, dexp = dexp - mean(range(dexp)))
-(model <- cmp(ncapu ~ dexp + I(dexp^2), data = da))
-logLik(model)
-}
 }
 \author{
 Eduardo E. R. Junior, \email{edujrrib@gmail.com}

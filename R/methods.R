@@ -1,3 +1,9 @@
+#' @importFrom stats AIC binomial coef delete.response fitted glm
+#'     glm.fit logLik model.frame model.matrix model.offset
+#'     model.response optim pchisq plogis pnorm poisson predict
+#'     printCoefmat qnorm resid residuals terms vcov
+NULL
+
 #' @title Log-Verossimilhança para modelos Conway-Maxwell-Poisson
 #' @name logLik.compois
 #' @description Exibe a log-verossimilhança calculada para o modelo
@@ -181,7 +187,7 @@ fitted.compois <- function(object, ...) {
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @export
 
-residuals.compois <- function(object, 
+residuals.compois <- function(object,
                               type = c("raw", "deviance", "pearson"),
                               ...) {
     if (type[1] == "raw") {
@@ -349,4 +355,3 @@ print.anova.compois <- function(x, ...) {
     }
     invisible(x)
 }
-

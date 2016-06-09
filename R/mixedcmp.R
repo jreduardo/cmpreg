@@ -1,7 +1,6 @@
 #' @title Integração Numérica por meio do método de Laplace
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com},
 #'     implementação original em Ribeiro Jr et al. (2012).
-#' @export
 #' @description Aproxima a integral de uma função pelo método de
 #'     Laplace, ou seja, \deqn{\int f(x) e^{-x^2} dx =
 #'     (2\pi)^{n/2}|{Q}|''(\hat{x})^{-1/2}e^{Q(\hat{x})}}.
@@ -31,20 +30,22 @@ laplace <- function(funcao, n.dim, log = TRUE, ...) {
 }
 
 #' @title Log-verossimilhança por grupo do modelo COM-Poisson misto
+#' @description Avalia a log-verossimilhança de cada grupo formado pelas
+#'     categóricas da variável considerada como aleatória.
 #' @param b Efeito aleatório nosiderada para avaliação da
 #'     log-verossimilhança.
 #' @param params Vetor de parâmetros do modelo. Deve seguir a ordenação
-#'     dada abaixo: \describe{
+#'     dada abaixo: \itemize{
 #'
-#' \item \code{phi} Parâmetro extra da distribuição COM-Poisson;
+#' \item{\code{phi}}{Parâmetro extra da distribuição COM-Poisson;}
 #'
-#' \item \code{lsigma} Parâmetros relacionados a matriz Z dos efeitos;
+#' \item{\code{lsigma}}{Parâmetros relacionados a matriz Z dos efeitos;
 #'     aleatórios. Representam as \eqn{\log(\sqrt(\textrm{variâncias}))}
 #'     na diagonal da matriz de variâncias e covariâncias \eqn{Sigma} da
-#'     Normal q-variada considerada para os efeitos aleatórios.
+#'     Normal q-variada considerada para os efeitos aleatórios;}
 #'
-#' \item \code{betas} Parâmetros relacionados aos efeitos fixos do
-#'     modelo.
+#' \item{\code{betas}}{Parâmetros relacionados aos efeitos fixos do
+#'     modelo.}
 #'
 #' }
 #' @param y Um vetor de contagens do grupo considerado.
@@ -72,23 +73,36 @@ llicmp <- function(b, params, y, X, Z, sumto = NULL) {
 }
 
 #' @title Log-verossimilhança Marginal do Modelo COM-Poisson Misto
+#' @description Avalia a log-verossimilhaça marginal de um modelo
+#'     COM-Poisson misto. Aqui as log-verossimilhanças de cada grupo são
+#'     integradas numericamente em relação aos efeitos aleatórios.
 #' @param params Vetor de parâmetros do modelo. Deve seguir a ordenação
-#'     dada abaixo: \describe{
+#'     dada abaixo: \itemize{
 #'
-#' \item \code{phi} Parâmetro extra da distribuição COM-Poisson;
+#' \item{\code{phi}}{Parâmetro extra da distribuição COM-Poisson;}
 #'
-#' \item \code{lsigma} Parâmetros relacionados a matriz Z dos efeitos;
+#' \item{\code{lsigma}}{Parâmetros relacionados a matriz Z dos efeitos;
 #'     aleatórios. Representam as \eqn{\log(\sqrt(\textrm{variâncias}))}
 #'     na diagonal da matriz de variâncias e covariâncias \eqn{Sigma} da
-#'     Normal q-variada considerada para os efeitos aleatórios.
+#'     Normal q-variada considerada para os efeitos aleatórios;}
 #'
-#' \item \code{betas} Parâmetros relacionados aos efeitos fixos do
-#'     modelo.
+#' \item{\code{betas}}{Parâmetros relacionados aos efeitos fixos do
+#'     modelo.}
 #'
 #' }
-#' @param formula Um objeto da classe \code{\link{formula}}. A inclusão
-#'     de efeitos aleatórios se dá de forma similar ao realizado pela
-#'     função \code{\link[tccPackage]{cmp}}
+#' @param form Um objeto da classe \code{\link{formula}}. Essa fórmula
+#'     substitue os "pipes", da fármula genérica para modelos mistos,
+#'     pelo símbolo de adição, veja \code{\link[lme4]{subbars}}.
+#' @param form.X Um objeto da classe \code{\link{formula}}. Essa fórmula
+#'     deve representar somente os efeitos fixos do modelo, veja
+#'     \code{\link[lme4]{nobars}}.
+#' @param form.Z Um objeto da classe \code{\link{formula}}. Essa fórmula
+#'     deve representar somente os efeitos aleatórios do modelo, veja
+#'     \code{\link[lme4]{findbars}}.
+#' @param dados.id Um objeto de classe \code{\link{list}}. Esa lista
+#'     deve ser uma divisão dos dados, onde cada slot contém a
+#'     participação comum a um grupo identificado por níveis
+#'     considerados como efeitos aleatórios.
 #' @param sumto Número de incrementos a serem considerados para a
 #'     cálculo da constante normalizadora Z.
 
@@ -134,6 +148,7 @@ llmixedcmp <- function(params, form, form.X, form.Z, dados.id,
 #' @return Um objeto de classe \code{mle2}, retornado da função de
 #'     \code{\link[bbmle]{mle2}}, usada para ajuste de modelos por
 #'     máxima verossimilhança.
+#' @importFrom bbmle mle2 parnames
 
 mixedcmp <- function(formula, data, sumto = NULL, ...) {
     ##-------------------------------------------
@@ -141,8 +156,9 @@ mixedcmp <- function(formula, data, sumto = NULL, ...) {
     form.X <- lme4::nobars(formula)
     form.Z <- lme4::findbars(formula)
     if (length(form.Z) > 1) {
-        stop(paste("Efeitos aleatórios para mais de um grupo",
-                   "ainda não implementado"))
+        msg <- paste("Efeitos aleat\\u00f3rios para mais",
+                     "de um grupo ainda n\\u00e3o implementado")
+        stop(msg)
     }
     ##-------------------------------------------
     ## Separa os dados nos blocos
