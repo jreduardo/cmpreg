@@ -1,9 +1,0 @@
-html_document:
-  css: style.css
-  fig_width: 8
-  fig_height: 6
-  toc: true
-  toc_dep: 3
-  fig_caption: yes
-  highlight: tango
-
