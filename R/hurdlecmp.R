@@ -18,23 +18,26 @@
 #'     0}
 #' @param Xz A matriz de delineamento do modelo para contagens nulas
 #'     \eqn{y = 0}
-#' @param offc Um vetor de valores a serem adicionados ao preditor
-#'     linear da contagem \eqn{y > 0}
-#' @param offz Um vetor de valores a serem adicionados ao preditor
-#'     linear da contagem \eqn{y = 0}
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo das constantes normalizadoras. Como padrão, para cálculo
+#'     dessa constante faz-se uso de um processo iterativo, porém esse
+#'     processo é demasiadamente demorado quando se ajusta os modelos
+#'     via otimização numérica. Portanto indicar esse valor tornará o
+#'     procedimento de estimação dos parâmetros mais veloz.
 #' @return O valor da log-verossimilhança do modelo
 #'     Hurdle Conway-Maxwell-Poisson com os parâmetros e dados informados
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @seealso \code{\link[tccPackage]{hurdlecmp}}
 
-llhurdle <- function(params, y, Xc, Xz, offc = NULL, offz = NULL) {
+llhurdle <- function(params, y, Xc, Xz, sumto = NULL) {
+    ##-------------------------------------------
+    ## Separa os parametros das duas partes do modelo
     zeropars <- params[grep("zero", names(params))]
     countpars <- params[grep("count", names(params))]
     ##-------------------------------------------
     ## Para a porção em zero
     yz <- ifelse(y == 0, 0, 1)
-        if (is.null(offz)) offz <- 0
-    Xbz <- Xz %*% zeropars + offz
+    Xbz <- Xz %*% zeropars
     muz <- plogis(Xbz)
     llz <- sum(yz * log(muz) + (1 - yz) * log(1 - muz))
     ##-------------------------------------------
@@ -42,50 +45,57 @@ llhurdle <- function(params, y, Xc, Xz, offc = NULL, offz = NULL) {
     betas <- countpars[-1]
     phi <- countpars[1]
     yc <- y[y > 0]
-    if (is.null(offc)) {
-        offc <- 0
-    } else
-        offz <- offz[y > 0, ]
     Xc <- Xc[y > 0, ]
-    Xbc <- Xc %*% betas + offc
-    kernel <- sum(yc * Xbc - exp(phi) * lfactorial(yc))
+    Xbc <- Xc %*% betas
+    ##-------------------------------------------
     ## Obtendo a constante normatizadora Z.
-    ## WARNING: Verificar a qtde de termos para a soma infinita
-    i <- 0:300
-    zs <- sapply(Xbc, function(lam)
-        sum(exp(i * lam - exp(phi) * lfactorial(i))))
-    Z <- sum(log(zs))
-    llc <- kernel - Z - sum(log(1 - 1/zs))
+    if (is.null(sumto)) {
+        zs <- sapply(Xbc, function(loglambda)
+            computez(loglambda, phi = phi, maxit = 1000))
+    } else {
+        i <- 0:sumto
+        zs <- sapply(Xbc, function(loglambda)
+            sum(exp(i * loglambda - exp(phi) * lfactorial(i))))
+    }
+    llc <- sum(yc * Xbc - exp(phi) * lfactorial(yc) - log(zs) -
+               log(1 - 1/zs))
     ##-------------------------------------------
     ## Verossimilhança combinada
     ll <- llz + llc
-    return(ll)
+    return(-ll)
 }
 
-#' @title Estimação do Modelo Hurdle Conway-Maxwell-Poisson
+#' @title Ajuste de um Modelo Hurdle Conway-Maxwell-Poisson
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @description Estima os parâmetros de um modelo Hurdle COM-Poisson sob
 #'     a otimização da função de log-verossimilhança. A sintaxe
 #'     assemelha-se com a função \code{\link[pscl]{hurdle}} (Hurdle
 #'     Models for Count Data Regression).
-#' @param formula Um objeto da classe \code{\link{formula}}. Se
-#'     necessária a inclusão de \emph{offset} deve-se indicá-lo como
-#'     \code{\link{offset}}. O preditor linear do modelo para contagens
-#'     0 e para contagens acima de zero deve ser separado pelo operador
-#'     \code{|}, por exemplo se for descrito \code{y ~ x1 | x2} o
-#'     preditor do modelo Binomial (para contagens 0) considerará apenas
-#'     \code{x2} e o preditor para o modelo COM-Poisson somente o
-#'     \code{x1}. Se não for especificado o operador \code{|} o mesmo
-#'     proditor será considerado para ambas as porções do modelo.
+#' @param formula Um objeto da classe \code{\link{formula}}. O preditor
+#'     linear do modelo para contagens 0 e para contagens acima de zero
+#'     deve ser separado pelo operador \code{|}, e.g. esspecificando
+#'     \code{y ~ x1 | x2} o preditor do modelo Binomial (para contagens
+#'     0) considerará apenas \code{x2} e o preditor para o modelo
+#'     COM-Poisson somente o \code{x1}. Se não for especificado o
+#'     operador \code{|} o mesmo proditor será considerado para ambas as
+#'     partes do modelo.
 #' @param data Um objeto de classe \code{data.frame}, cujo contém as
 #'     variáveis descritas na \code{formula}
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo das constantes normalizadoras. Como padrão, para cálculo
+#'     dessa constante faz-se uso de um processo iterativo, porém esse
+#'     processo é demasiadamente demorado quando se ajusta os modelos
+#'     via otimização numérica. Portanto indicar esse valor tornará o
+#'     procedimento de estimação dos parâmetros mais veloz.
 #' @param ... Argumentos opcionais do framework de maximização numérica
-#'     \code{\link{optim}}
-#' @return Uma lista de componentes do ajuste. Objeto de classe
-#'     \code{hurdlecmp} cujo funções métodos foram implementadas.
-#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#'     \code{\link[bbmle]{mle2}}
+#' @return Um objeto de classe \code{mle2}, retornado da função de
+#'     \code{\link[bbmle]{mle2}}, usada para ajuste de modelos por
+#'     máxima verossimilhança.
+#' @importFrom bbmle parnames mle2
 #' @export
 
-hurdlecmp <- function(formula, data, ...) {
+hurdlecmp <- function(formula, data, sumto = NULL, ...) {
     ##-------------------------------------------
     ## Dividindo a formula para os zeros (ffz) e para as contagens (ffc)
     if(length(formula[[3]]) > 1 && formula[[3]][[1]] == as.name("|")) {
@@ -107,54 +117,35 @@ hurdlecmp <- function(formula, data, ...) {
                            deparse(ffz))))
     }
     ##-------------------------------------------
-    ## Criando as matrizes dos modelos 
+    ## Criando as matrizes dos modelos
     ## Para zero (y = 0)
     framez <- model.frame(ffz, data)
     termsz <- attr(framez, "terms")
     Xz <- model.matrix(termsz, framez)
-    offz <- model.offset(framez)
     ## Para contagem (y > 0)
     framec <- model.frame(ffc, data)
     termsc <- attr(framec, "terms")
     Xc <- model.matrix(termsc, framec)
+    ##-------------------------------------------
+    offz <- model.offset(framez)
     offc <- model.offset(framec)
+    if(!is.null(offc) || !is.null(offz)) {
+        stop("Este modelo ainda nao suporta offset")
+    }
+    ##-------------------------------------------
     ## Resposta
     y <- model.response(framec)
     ##-------------------------------------------
-    ## Funcao de log-verossimilhanca
-    fn <- function(params) {
-         - llhurdle(params = params, y = y, Xc = Xc, Xz = Xz,
-                 offz = offz, offc = offc)
-    }
-    ##-------------------------------------------
     ## Start - parametros iniciais
-    startz <- glm.fit(Xz, factor(y > 0), family = binomial(),
-                      offset = offz)$coef
-    startc <- c(phi = 0,
-                glm.fit(Xc, y, family = poisson(), offset = offc)$coef)
+    startz <- glm.fit(Xz, factor(y > 0), family = binomial())$coef
+    startc <- c(phi = 0, glm.fit(Xc, y, family = poisson())$coef)
+    start <- c(zero = startz, count = startc)
     ##-------------------------------------------
-    ## Otimização
-    opt <- optim(par = c(zero = startz, count = startc), fn = fn,
-                 method = "BFGS", hessian = TRUE, ...)
-    zeropars <- opt$par[grep("zero", names(opt$par))]
-    countpars <- opt$par[grep("count", names(opt$par))]
-    ##-------------------------------------------
-    fit <- list(
-        call = match.call(),
-        form = formula,
-        terms = list(zero = termsz, count = termsc),
-        data = list(y = y, Xz = Xz, Xc = Xc, offz = offz, offc = offc),
-        nobs = length(y),
-        df = length(y) - length(opt$par),
-        phi = opt$par["count.phi"],
-        betas = countpars[-1],
-        alphas = zeropars,
-        logLik = -opt$value,
-        niter = opt$counts,
-        convergence = opt$convergence,
-        hessian = opt$hessian
-    )
-    class(fit) <- "hurdlecmp"
-    return(fit)
+    ## Otimização via bbmle
+    bbmle::parnames(llhurdle) <- names(start)
+    model <- bbmle::mle2(llhurdle, start = start,
+                         data = list(y = y, Xc = Xc, Xz = Xz,
+                                     sumto = sumto),
+                         vecpar = TRUE, ...)
+    return(model)
 }
-

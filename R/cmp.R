@@ -1,11 +1,13 @@
 #' @title Avaliação da Constante Normalizadora
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#' @export
 #' @description Calcula o valor da constante de normalização do modelo
 #'     COM-Poisson definida por: \deqn{Z = \sum
 #'     \frac{\lambda^i}{(i!)^\nu}}. Para melhoria dos métodos de
 #'     estimação o parâmetro \eqn{\nu} é tomado como \eqn{\exp{\phi}} e
 #'     todas as inferências são tomadas a partir de \eqn{\phi}
-#' @param lambda Parâmetro \eqn{\lambda} da função de distribuição de
-#'     probabilidades COM-Poisson
+#' @param loglambda Valor de \eqn{\log(\lambda)}, sendo \eqn{\lambda} o
+#'     parâmetro da função de distribuição de probabilidades COM-Poisson
 #' @param phi Parâmetro \eqn{\phi = \log{\nu}} da função de distribuição
 #'     de probabilidades COM-Poisson
 #' @param tol Critério de parada do algoritmo, representa o valor
@@ -14,101 +16,119 @@
 #' @param maxit Número máximo de iterações a serem realizadas pelo
 #'     algoritmo. Se este número for atingido e o critério de tolerância
 #'     não for atendido, uma mensagem de aviso será exibida
-#' @return O valor da constante de normalização, \eqn{Z(\lambda,
-#'     \phi)} da distribuição COM-Poisson
-#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
-#' @examples
-#'
-#' ## Verificação da função
-#' data(cottonBolls)
-#' formula <- ncap ~ est:(des + I(des^2))
-#' data <- cottonBolls
-#'
-#' frame <- model.frame(formula, data)
-#' terms <- attr(frame, "terms")
-#' y <- model.response(frame)
-#' X <- model.matrix(terms, frame)
-#'
-#' betas <- coef(glm(formula, data = data, family = poisson))
-#' phi <- 0
-#' Xb <- X %*% betas
-#' kernel <- sum(y * Xb - exp(phi) * lfactorial(y))
-#'
-#' ## --- Utilizando a soma até 150
-#' i <- 0:150
-#' zs <- sapply(Xb, function(lam)
-#'     sum(exp(i * lam - exp(phi) * lfactorial(i))))
-#' (Z <- sum(log(zs)))
-#' (ll <- kernel - Z)
-#'
-#' ## --- Utilizando a computez, com critério de parada
-#' zs1 <- sapply(exp(Xb), tccPackage:::computez, phi = phi)
-#' (Z1 <- sum(log(zs1)))
-#' (ll1 <- kernel - Z1)
-#'
+#' @param incremento Número de incrementos da soma a serem considerados
+#'     a cada iteração. Padrão definido como 10, ou seja, a cada
+#'     iteração 10 incrementos são calculados.
+#' @return O valor da constante de normalização, \eqn{Z(\lambda, \phi)}
+#'     da distribuição COM-Poisson
 
-computez <- function(lambda, phi, tol = 1e-3, maxit = 1e3) {
+computez <- function(loglambda, phi, tol = 1e-2, maxit = 500,
+                     incremento = 10) {
+    ##-------------------------------------------
     nu <- exp(phi)
-    z0 <- 1000
-    z <- 0
-    i <- 2
-    while (abs(z - z0) > tol && i < maxit) {
-        z0 <- z
-        z <- z0 + exp(i * log(lambda) - nu * lfactorial(i))
-        i <- i + 1
+    ##-------------------------------------------
+    zg <- vector("list", maxit)
+    t <- incremento
+    i <- 1:t
+    j <- 1
+    ##
+    zg[[j]] <- exp(i * loglambda - nu * lfactorial(i))
+    ##
+    while (abs(zg[[j]][t-1]) > tol && j < maxit) {
+        i <- (i[t] + 1):(i[t] + t)
+        j = j + 1
+        zg[[j]] <- exp(i * loglambda - nu * lfactorial(i))
     }
-    if (abs(z - z0) > tol && i == maxit) {
-        diff <- abs(z - z0)
-        aviso <- sprintf(paste0(
-            "  Valor da constante de normaliza\\u00e7\\u00e3o",
-            " n\\u00e3o convergiu!\\n",
-            "    Estimada em %.3f com %i itera\\u00e7\\u00f5es\\n",
-            "    Diferen\\u00e7a entre 2 \\u00faltimas",
-            " itera\\u00e7\\u00f5es %.5f"),
-            z, i, diff)
-        warning(aviso)
-    }
-    return(z + lambda + 1)
+    z <- unlist(zg)
+    return(sum(z)+1)
 }
 
 #' @title Log-Verossimilhança do Modelo Conway-Maxwell-Poisson
-#' @description Calcula a log-verossimilhança de um modelo COM-Poisson
-#'     considerando os dados e as estimativas dos parâmetros informadas.
-#' @details A função de log-verossimilhança toma a forma: \deqn{-Z - y *
-#'     \lambda - \nu \log{y!}}, onde \eqn{Z = \sum
-#'     \frac{\lambda^i}{(i!)^\nu}}
-#' @param betas Um vetor de estimativas para os parâmetros de regressão
-#'     da distribuição Conway-Maxwell-Poisson.
-#' @param phi Um valor estimado para o parâmetro de dispersão considerado
-#'     na distrbuição Conway-Maxwell-Poisson \eqn{\phi = \log{\nu}}
-#' @param y Um vetor de contagens, considerado como variável resposta
-#' @param X A matriz de delineamento do modelo
-#' @param sumto Número de incrementos a serem considerados para a
-#'     cálculo da constante normalizadora Z.
-#' @return O valor da log-verossimilhança do modelo
-#'     Conway-Maxwell-Poisson com os parâmetros e dados informados
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
-#' @seealso \code{\link[tccPackage]{cmp}}
+#' @export
+#' @description Calcula a log-verossimilhança de um modelo de regressão
+#'     para o parâmetro \eqn{\lambda} considerando as respostas de
+#'     contagem (y), condicionadas as suas covariáveis (X), distribuídas
+#'     conforme modelo COM-Poisson.
+#' @details A função de log-verossimilhança da COM-Poisson, na
+#'     parametrização de modelo de regresssão é:
+#'
+#' \deqn{\ell(\beta, \nu, y) =
+#'     \sum_{i=1}^{n} y_i \log(\lambda_i) - \nu \sum_{i=1}^{n}\log(y!)
+#'     - \sum_{i=1}^{n} \log(Z(\lambda_i, \nu))}
+#'
+#' em que (i) \eqn{\lambda_i = \exp(X_i \beta)}, no modelo de regressão
+#'     COM-Poisson um preditor linear é ligado à \eqn{\lambda} por meio
+#'     da função de ligação log. Note que não estamos modelando
+#'     diretamente a média, assim as estimativas dos parâmetros
+#'     \eqn{\beta} não tem a mesma interpretação dos modelos Poisson,
+#'     por exemplo. Contudo, os sinais desses parâmetros indicam efeitos
+#'     de acréscimo ou descréscimo nas contagens médias.
+#' (ii) \eqn{\nu} é o parâmetro de dispersão que indica equi, sub ou
+#'     superdispersão das contagens y. Sendo \eqn{nu = 1} o caso de
+#'     equidispersão, \eqn{0 \leq \nu < 1} superdispersão e \eqn{\nu >
+#'     1} subdispersão. Vale ressaltar que a variância \eqn{V(Y)} não
+#'     tem expressão fechada e não é definada unicamente por \eqn{\nu}.
+#' (iii) \eqn{Z(\lambda_i, \nu)} é a constante de normalização definida
+#'     por \deqn{\sum_{j=0}^{\infty} \frac{\lambda_i^j}{(j!)^\nu}}. Note
+#'     que são cálculadas n constantes Z. Nesta implementação o número
+#'     de incrementos considerados para cálculo dessas constantes é
+#'     definido por \code{sumto}, o mesmo número de incrementos é
+#'     considerado para o cálculo de todas as contantes. Uma verificação
+#'     pós ajuste da escolha de \code{sumto} pode ser realizada a partir
+#'     de \code{\link[MRDCr]{convergencez}}.
+#'
+#' Nesta parametrização o modelo COM-Poisson tem como casos particulares
+#'     os modelos Poisson quando \eqn{\nu = 1}, Bernoulli quando
+#'     \eqn{\nu \rightarrow \infty} (ou o modelo logístico considerando
+#'     modelos de regressão) e Geométrico quando \eqn{\nu = 0} e
+#'     \eqn{\lambda < 1}.
+#'
+#' Para que não seja necessário restringir o algoritmo de maximização da
+#'     log-verossimilhança, a função foi implementada reparametrizando o
+#'     parâmetro \eqn{\nu} para \eqn{\log(\phi)}. Assim o parâmetro
+#'     estimado será \eqn{\phi} que tem suporte nos reais, assim como o
+#'     vetor \eqn{\beta}.
+#' @param params Um vetor de parâmetros do modelo COM-Poisson. O
+#'     primeiro elemento desse vetor deve ser o parâmetro de dispersão
+#'     do modelo, \eqn{\phi}, os restantes são os parâmetros
+#'     \eqn{\beta}'s associados ao preditor linear em \eqn{\lambda}.
+#' @param y Um vetor com variável dependente do modelo, resposta do tipo
+#'     contagem.
+#' @param X A matriz de delineamento correspondente ao modelo linear
+#'     ligado à \eqn{\lambda} pela função de ligação log. A matriz do
+#'     modelo pode ser construída com a função
+#'     \code{\link[stats]{model.matrix}}.
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo das constantes normalizadoras. Como padrão, para cálculo
+#'     dessa constante faz-se uso de um processo iterativo, porém esse
+#'     processo é demasiadamente demorado quando se ajusta os modelos
+#'     via otimização numérica. Portanto indicar esse valor tornará o
+#'     procedimento de estimação dos parâmetros mais veloz.
+#' @return O negativo da log-verossimilhança do modelo
+#'     Conway-Maxwell-Poisson com os parâmetros e dados informados.
+#' @seealso \code{\link[bbmle]{mle2}}
 
-llcmp <- function(betas, phi, y, X, sumto = NULL){
+llcmp <- function(params, y, X, sumto = NULL){
+    ##-------------------------------------------
+    betas <- params[-1]
+    phi <- params[1]
     nu <- exp(phi)
+    ##-------------------------------------------
     Xb <- X %*% betas
-    kernel <- sum(y * Xb - nu * lfactorial(y))
+    ##-------------------------------------------
     ## Obtendo a constante normatizadora Z.
-    ## WARNING: Verificar a qtde de termos para a soma infinita
-    if (is.null(sumto)) sumto <- max(y)^1.2
-    i <- 1:sumto
-    zs <- sapply(Xb, function(lam)
-        sum(exp(i * lam - nu * lfactorial(i))))
-    Z <- sum(log(zs + 1))
+    if (is.null(sumto)) {
+        zs <- sapply(Xb, function(loglambda)
+            computez(loglambda, phi = phi, maxit = 1000))
+    } else {
+        i <- 0:sumto
+        zs <- sapply(Xb, function(loglambda)
+            sum(exp(i * loglambda - nu * lfactorial(i))))
+    }
     ##-------------------------------------------
-    ## Ainda não funciona bem, o algoritmo de otimização leva a valores
-    ## absurdos de phi, inviabilizando o cálculo de Z
-    ## zs <- sapply(exp(Xb), computez, phi = phi)
-    ## Z <- sum(log(zs))
-    ##-------------------------------------------
-    ll <- kernel - Z
-    return(ll)
+    ll <- sum(y * Xb - nu * lfactorial(y) - log(zs))
+    return(-ll)
 }
 
 #' @title Probabilidades do Modelo Conway-Maxwell-Poisson
@@ -163,71 +183,180 @@ llcmp <- function(betas, phi, y, X, sumto = NULL){
 #' })
 
 dcmp <- Vectorize(
-    FUN = function(y, loglambda, phi, sumto, log = FALSE) {
+    FUN = function(y, loglambda, phi, sumto = NULL, log = FALSE) {
         py <- sapply(y, function(yi) {
-            llcmp(betas = loglambda, phi = phi, y = yi, X = 1,
-                  sumto = sumto)
+            -llcmp(c(phi, loglambda), y = yi, X = 1, sumto = sumto)
         })
         if (!log)
             py <- exp(py)
         return(py)
     }, vectorize.args = c("y", "loglambda", "phi"))
 
-#' @title Estimação do Modelo Conway-Maxwell-Poisson
-#' @description Estima os parâmetros de um modelo COM-Poisson sob a
-#'     otimização da função de log-verossimilhança. A sintaxe
-#'     assemelha-se com a função \code{\link{glm}} (Generalized Linear
-#'     Models).
-#' @param formula Um objeto da classe \code{\link{formula}}. Se
-#'     necessária a inclusão de \emph{offset} deve-se indicá-lo como
-#'     \code{\link{offset}}
-#' @param data Um objeto de classe \code{data.frame}, cujo contém as
-#'     variáveis descritas na \code{formula}
-#' @param sumto Número de incrementos a serem considerados para a
-#'     cálculo da constante normalizadora Z.
-#' @param ... Argumentos opcionais do framework de maximização numérica
-#'     \code{\link{optim}}
-#' @return Uma lista de componentes do ajuste. Objeto de classe
-#'     \code{compois} cujo funções métodos foram implementadas.
+#' @title Calcula o Valor Esperado para a Distribuição
+#'     Conway-Maxwell-Poisson
 #' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
 #' @export
+#' @description Função para calcular a média do tipo \eqn{E(Y) = \mu =
+#'     \sum y\cdot \Pr(y)} para uma variável aleatória COM-Poisson a
+#'     partir dos parâmetros \eqn{\lambda > 0} e \eqn{\nu \geq 0}.
+#' @param loglambda Valor de \eqn{\log(\lambda)}, sendo \eqn{\lambda} o
+#'     parâmetro da função de distribuição de probabilidades
+#'     COM-Poisson.
+#' @param phi Parâmetro \eqn{\phi = \log{\nu}} da função de distribuição
+#'     de probabilidades COM-Poisson.
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo da constante normalizadora Z.
+#' @param tol Tolerância para interromper a procura pelo valor de
+#'     \code{ymax}, valor cuja probabilidade correspondente é inferior a
+#'     \code{tol}, para valores os valores de \code{lambda} e
+#'     \code{nu} informados.
+#' @return Um vetor de tamanho igual ao do maior vetor, \code{lambda} ou
+#'     \code{nu} com os valores correspondentes de \eqn{\mu}.
 
-cmp <- function(formula, data, sumto = NULL, ...) {
+calc_mean_cmp <- function(loglambda, phi, sumto = NULL, tol = 1e-5) {
+    ## Faz com que os parâmetros sejam vetores de mesmo tamanho.
+    names(loglambda) <- NULL
+    names(phi) <- NULL
+    pars <- data.frame(loglambda = loglambda, phi = phi)
+    ## Calcula o ymax usando mu + 5 (sqrt(sigma)) aproximados
+    lambda <- exp(loglambda)
+    nu <- exp(phi)
+    approxmu <- lambda^(1/nu) - (nu - 1)/(2 * nu)
+    sigma <- (1/nu) * approxmu
+    ymax <- ceiling(max(approxmu + 5 * sqrt(sigma)))
+    ## Agora verifica se a prob(ymax) é de fato pequena, se não, soma 1.
+    loglambdamax <- max(pars$loglambda)
+    phimin <- min(pars$phi)
+    pmax <- dcmp(y = ymax, loglambda = loglambdamax,
+                 phi = phimin, sumto = sumto)
+    while (pmax > tol) {
+        ymax <- ymax + 1
+        pmax <- dcmp(y = ymax, loglambdamax, phimin, sumto = sumto)
+    }
+    ## Define o vetor onde avaliar a densidade COM-Poisson.
+    y <- 1:ymax
+    estmean <- mapply(loglambda = pars$loglambda,
+                      phi = pars$phi,
+                      MoreArgs = list(y = y, sumto = sumto),
+                      FUN = function(loglambda, phi, y, sumto) {
+                          py <- dcmp(y, loglambda, phi, sumto)
+                          sum(y * py)
+                      },
+                      SIMPLIFY = TRUE)
+    names(estmean) <- NULL
+    return(estmean)
+}
+
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#' @export
+#' @title Calcula o Valor da Variância para a Distribuição
+#'     Conway-Maxwell-Poisson
+#' @description Função para calcular a variância do tipo \eqn{V(Y) =
+#'     E(Y^2) - E^2(Y) = \sum y^2\cdot \Pr(y) - \left ( \sum y\cdot
+#'     \Pr(y) \right )^2} para uma variável aleatória COM-Poisson a
+#'     partir dos parâmetros \eqn{\lambda > 0} e \eqn{\nu \geq 0}.
+#' @param loglambda Valor de \eqn{\log(\lambda)}, sendo \eqn{\lambda} o
+#'     parâmetro da função de distribuição de probabilidades
+#'     COM-Poisson.
+#' @param phi Parâmetro \eqn{\phi = \log{\nu}} da função de distribuição
+#'     de probabilidades COM-Poisson.
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo da constante normalizadora Z.
+#' @param tol Tolerância para interromper a procura pelo valor de
+#'     \code{ymax}, valor cuja probabilidade correspondente é inferior a
+#'     \code{tol}, para valores os valores de \code{lambda} e \code{nu}
+#'     informados.
+#' @return Um vetor de tamanho igual ao do maior vetor, \code{lambda} ou
+#'     \code{nu} com os valores correspondentes de \eqn{\mu}.
+
+calc_var_cmp <- function(loglambda, phi, sumto = NULL, tol = 1e-5) {
+    ## Faz com que os parâmetros sejam vetores de mesmo tamanho.
+    names(loglambda) <- NULL
+    names(phi) <- NULL
+    pars <- data.frame(loglambda = loglambda, phi = phi)
+    ## Calcula o ymax usando mu + 5 (sqrt(sigma)) aproximados
+    lambda <- exp(loglambda)
+    nu <- exp(phi)
+    approxmu <- lambda^(1/nu) - (nu - 1)/(2 * nu)
+    sigma <- (1/nu) * approxmu
+    ymax <- ceiling(max(approxmu + 5 * sqrt(sigma)))
+    ## Agora verifica se a prob(ymax) é de fato pequena, se não, soma 1.
+    loglambdamax <- max(pars$loglambda)
+    phimin <- min(pars$phi)
+    pmax <- dcmp(y = ymax, loglambda = loglambdamax,
+                 phi = phimin, sumto = sumto)
+    while (pmax > tol) {
+        ymax <- ymax + 1
+        pmax <- dcmp(y = ymax, loglambdamax, phimin, sumto = sumto)
+    }
+    ## Define o vetor onde avaliar a densidade COM-Poisson.
+    y <- 1:ymax
+    estvar <- mapply(loglambda = pars$loglambda,
+                      phi = pars$phi,
+                      MoreArgs = list(y = y, sumto = sumto),
+                      FUN = function(loglambda, phi, y, sumto) {
+                          py <- dcmp(y, loglambda, phi, sumto)
+                          diff(c(sum(y * py)^2, sum(y^2 * py)))
+                      },
+                      SIMPLIFY = TRUE)
+    names(estvar) <- NULL
+    return(estvar)
+}
+
+#' @title Ajuste do Modelo Conway-Maxwell-Poisson
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#' @export
+#' @description Estima os parâmetros de um modelo COM-Poisson pela
+#'     otimização da função de log-verossimilhança definida em
+#'     \code{\link{llcmp}}. A sintaxe assemelha-se com a função
+#'     \code{\link{glm}} (Generalized Linear Models).
+#' @param formula Um objeto da classe \code{\link{formula}}.
+#' @param data Um objeto de classe \code{data.frame}, que contém as
+#'     variáveis descritas na \code{formula}.
+#' @param start Um vetor nomeado com os valores iniciais para os
+#'     parâmetros do modelo necessários para o início do procedimento de
+#'     estimação. Se \code{NULL} as estimativas de um modelo log-linear
+#'     Poisson, com \eqn{\phi = 0}, são utilizadas como valores
+#'     iniciais, pois uma chamada da \code{\link[stats]{glm.fit}} é
+#'     feita internamente para obtê-los. O parâmetro \eqn{\phi} deve ser
+#'     o primeiro elemento do vetor. Os restantes devem estar na
+#'     correspondente às colunas da matriz gerada pelo argumento
+#'     \code{formula}.
+#' @param sumto Número de incrementos a serem considerados para a
+#'     cálculo das constantes normalizadoras. Como padrão, para cálculo
+#'     dessa constante faz-se uso de um processo iterativo, porém esse
+#'     processo é demasiadamente demorado quando se ajusta os modelos
+#'     via otimização numérica. Portanto indicar esse valor tornará o
+#'     procedimento de estimação dos parâmetros mais veloz.
+#' @param ... Argumentos opcionais do framework de maximização numérica
+#'     \code{\link[bbmle]{mle2}}.
+#' @return Um objeto de classe \code{mle2}, retornado da função de
+#'     \code{\link[bbmle]{mle2}}, usada para ajuste de modelos por
+#'     máxima verossimilhança.
+#' @importFrom bbmle parnames mle2
+
+cmp <- function(formula, data, start = NULL, sumto = NULL, ...) {
     ##-------------------------------------------
+    ## Constrói as matrizes do modelo
     frame <- model.frame(formula, data)
     terms <- attr(frame, "terms")
-    ##
     y <- model.response(frame)
     X <- model.matrix(terms, frame)
-    off <- model.offset(frame)
     if(!is.null(model.offset(frame))) {
         stop("Este modelo ainda nao suporta offset")
     }
-    ##
-    m0 <- glm(formula, data = data, family = poisson)
-    betas.init <- m0$coefficients
-    phi.init <- -log(sum(resid(m0, type = "pearson")^2)/m0$df.residual)
-    ##
-    fn <- function(params) {
-        - llcmp(params[-1], params[1], y = y, X = X, sumto = sumto)
-    }
-    opt <- optim(c(phi.init, betas.init), fn = fn, method = "BFGS",
-                 hessian = TRUE, ...)
     ##-------------------------------------------
-    fit <- list(
-        call = match.call(),
-        form = formula,
-        terms = terms,
-        data = list(y = y, X = X, offset = off),
-        nobs = length(y),
-        df = length(y) - length(opt$par),
-        phi = opt$par[1],
-        betas = opt$par[-1],
-        logLik = -opt$value,
-        niter = opt$count,
-        convergence = opt$convergence,
-        hessian = opt$hessian
-    )
-    class(fit) <- "compois"
-    return(fit)
+    ## Define os chutes iniciais
+    if (is.null(start)) {
+        m0 <- glm.fit(x = X, y = y, family = poisson())
+        start <- c("phi" = 0, m0$coefficients)
+    }
+    ##-------------------------------------------
+    ## Nomeia os parâmetros da função para métodos bbmle
+    bbmle::parnames(llcmp) <- names(start)
+    model <- bbmle::mle2(llcmp, start = start,
+                         data = list(y = y, X = X, sumto = sumto,
+                                     terms = terms),
+                         vecpar = TRUE, ...)
+    return(model)
 }

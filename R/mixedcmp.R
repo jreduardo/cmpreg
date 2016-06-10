@@ -106,13 +106,13 @@ llicmp <- function(b, params, y, X, Z, sumto = NULL) {
 #' @param sumto Número de incrementos a serem considerados para a
 #'     cálculo da constante normalizadora Z.
 
-llmixedcmp <- function(params, form, form.X, form.Z, dados.id,
-                       sumto = NULL) {
+llmixed <- function(params, form, form.X, form.Z, dados.id,
+                    sumto = NULL) {
     ##-------------------------------------------
     ## Constrói as fórmulas para os efeitos fixos e aleatórios
     ## Calcula as integrais
     ints <- lapply(dados.id, function(dados) {
-        mf <- model.frame(form, data = dados)
+        mf <- model.frame(formula, data = dados)
         y <- model.response(mf)
         Xi <- model.matrix(form.X, dados)
         Zi <- t(as.matrix(lme4::mkReTrms(form.Z, mf)$Zt))
@@ -176,9 +176,9 @@ mixedcmp <- function(formula, data, sumto = NULL, ...) {
     names(lsigma.init) <- paste0("lsigma", 0:(nZ-1))
     start <- c(phi.init, lsigma.init, beta.init)
     ##------------------------------------------
-    bbmle::parnames(llmixedcmp) <- names(start)
-    dataL <- list(form = form, form.X = form.X, form.Z = form.Z,
+    bbmle::parnames(llmixed) <- names(start)
+    dataL <- list(formula = form, form.X = form.X, form.Z = form.Z,
                   dados.id = dados.id, sumto = sumto)
-    model <- bbmle::mle2(llmixedcmp, start = start, data = dataL)
+    model <- bbmle::mle2(llmixed, start = start, data = dataL)
     return(model)
 }

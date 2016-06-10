@@ -12,13 +12,13 @@ Description: O pacote contém funções para ajuste dos modelos de
     funções métodos para análise dos objetos R que representam os
     modelos ajustados.
 Depends:
-    R (>= 3.2.3)
+    R (>= 3.2.3),
+	bbmle
 Imports:
 	lattice,
 	lme4,
 	mvtnorm,
-	compoisson,
-	bbmle
+	methods
 Suggests:
     corrplot,
     knitr,

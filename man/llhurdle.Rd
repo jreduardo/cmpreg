@@ -4,7 +4,7 @@
 \alias{llhurdle}
 \title{Log-Verossimilhança do Modelo Hurdle Conway-Maxwell-Poisson}
 \usage{
-llhurdle(params, y, Xc, Xz, offc = NULL, offz = NULL)
+llhurdle(params, y, Xc, Xz, sumto = NULL)
 }
 \arguments{
 \item{params}{Um vetor de estimativas para os parâmetros da
@@ -21,11 +21,12 @@ Binomial associado a contagens 0.}
 \item{Xz}{A matriz de delineamento do modelo para contagens nulas
 \eqn{y = 0}}
 
-\item{offc}{Um vetor de valores a serem adicionados ao preditor
-linear da contagem \eqn{y > 0}}
-
-\item{offz}{Um vetor de valores a serem adicionados ao preditor
-linear da contagem \eqn{y = 0}}
+\item{sumto}{Número de incrementos a serem considerados para a
+cálculo das constantes normalizadoras. Como padrão, para cálculo
+dessa constante faz-se uso de um processo iterativo, porém esse
+processo é demasiadamente demorado quando se ajusta os modelos
+via otimização numérica. Portanto indicar esse valor tornará o
+procedimento de estimação dos parâmetros mais veloz.}
 }
 \value{
 O valor da log-verossimilhança do modelo

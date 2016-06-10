@@ -2,33 +2,46 @@
 % Please edit documentation in R/cmp.R
 \name{cmp}
 \alias{cmp}
-\title{Estimação do Modelo Conway-Maxwell-Poisson}
+\title{Ajuste do Modelo Conway-Maxwell-Poisson}
 \usage{
-cmp(formula, data, sumto = NULL, ...)
+cmp(formula, data, start = NULL, sumto = NULL, ...)
 }
 \arguments{
-\item{formula}{Um objeto da classe \code{\link{formula}}. Se
-necessária a inclusão de \emph{offset} deve-se indicá-lo como
-\code{\link{offset}}}
+\item{formula}{Um objeto da classe \code{\link{formula}}.}
 
-\item{data}{Um objeto de classe \code{data.frame}, cujo contém as
-variáveis descritas na \code{formula}}
+\item{data}{Um objeto de classe \code{data.frame}, que contém as
+variáveis descritas na \code{formula}.}
+
+\item{start}{Um vetor nomeado com os valores iniciais para os
+parâmetros do modelo necessários para o início do procedimento de
+estimação. Se \code{NULL} as estimativas de um modelo log-linear
+Poisson, com \eqn{\phi = 0}, são utilizadas como valores
+iniciais, pois uma chamada da \code{\link[stats]{glm.fit}} é
+feita internamente para obtê-los. O parâmetro \eqn{\phi} deve ser
+o primeiro elemento do vetor. Os restantes devem estar na
+correspondente às colunas da matriz gerada pelo argumento
+\code{formula}.}
 
 \item{sumto}{Número de incrementos a serem considerados para a
-cálculo da constante normalizadora Z.}
+cálculo das constantes normalizadoras. Como padrão, para cálculo
+dessa constante faz-se uso de um processo iterativo, porém esse
+processo é demasiadamente demorado quando se ajusta os modelos
+via otimização numérica. Portanto indicar esse valor tornará o
+procedimento de estimação dos parâmetros mais veloz.}
 
 \item{...}{Argumentos opcionais do framework de maximização numérica
-\code{\link{optim}}}
+\code{\link[bbmle]{mle2}}.}
 }
 \value{
-Uma lista de componentes do ajuste. Objeto de classe
-    \code{compois} cujo funções métodos foram implementadas.
+Um objeto de classe \code{mle2}, retornado da função de
+    \code{\link[bbmle]{mle2}}, usada para ajuste de modelos por
+    máxima verossimilhança.
 }
 \description{
-Estima os parâmetros de um modelo COM-Poisson sob a
-    otimização da função de log-verossimilhança. A sintaxe
-    assemelha-se com a função \code{\link{glm}} (Generalized Linear
-    Models).
+Estima os parâmetros de um modelo COM-Poisson pela
+    otimização da função de log-verossimilhança definida em
+    \code{\link{llcmp}}. A sintaxe assemelha-se com a função
+    \code{\link{glm}} (Generalized Linear Models).
 }
 \author{
 Eduardo E. R. Junior, \email{edujrrib@gmail.com}

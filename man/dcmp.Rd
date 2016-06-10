@@ -4,7 +4,7 @@
 \alias{dcmp}
 \title{Probabilidades do Modelo Conway-Maxwell-Poisson}
 \usage{
-dcmp(y, loglambda, phi, sumto, log = FALSE)
+dcmp(y, loglambda, phi, sumto = NULL, log = FALSE)
 }
 \arguments{
 \item{y}{Valor da variável de contagem.}

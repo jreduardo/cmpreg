@@ -4,11 +4,11 @@
 \alias{computez}
 \title{Avaliação da Constante Normalizadora}
 \usage{
-computez(lambda, phi, tol = 0.001, maxit = 1000)
+computez(loglambda, phi, tol = 0.01, maxit = 500, incremento = 10)
 }
 \arguments{
-\item{lambda}{Parâmetro \eqn{\lambda} da função de distribuição de
-probabilidades COM-Poisson}
+\item{loglambda}{Valor de \eqn{\log(\lambda)}, sendo \eqn{\lambda} o
+parâmetro da função de distribuição de probabilidades COM-Poisson}
 
 \item{phi}{Parâmetro \eqn{\phi = \log{\nu}} da função de distribuição
 de probabilidades COM-Poisson}
@@ -20,10 +20,14 @@ entre duas iterações. O valor padrão é 1e-3}
 \item{maxit}{Número máximo de iterações a serem realizadas pelo
 algoritmo. Se este número for atingido e o critério de tolerância
 não for atendido, uma mensagem de aviso será exibida}
+
+\item{incremento}{Número de incrementos da soma a serem considerados
+a cada iteração. Padrão definido como 10, ou seja, a cada
+iteração 10 incrementos são calculados.}
 }
 \value{
-O valor da constante de normalização, \eqn{Z(\lambda,
-    \phi)} da distribuição COM-Poisson
+O valor da constante de normalização, \eqn{Z(\lambda, \phi)}
+    da distribuição COM-Poisson
 }
 \description{
 Calcula o valor da constante de normalização do modelo
@@ -31,36 +35,6 @@ Calcula o valor da constante de normalização do modelo
     \frac{\lambda^i}{(i!)^\nu}}. Para melhoria dos métodos de
     estimação o parâmetro \eqn{\nu} é tomado como \eqn{\exp{\phi}} e
     todas as inferências são tomadas a partir de \eqn{\phi}
-}
-\examples{
-
-## Verificação da função
-data(cottonBolls)
-formula <- ncap ~ est:(des + I(des^2))
-data <- cottonBolls
-
-frame <- model.frame(formula, data)
-terms <- attr(frame, "terms")
-y <- model.response(frame)
-X <- model.matrix(terms, frame)
-
-betas <- coef(glm(formula, data = data, family = poisson))
-phi <- 0
-Xb <- X \%*\% betas
-kernel <- sum(y * Xb - exp(phi) * lfactorial(y))
-
-## --- Utilizando a soma até 150
-i <- 0:150
-zs <- sapply(Xb, function(lam)
-    sum(exp(i * lam - exp(phi) * lfactorial(i))))
-(Z <- sum(log(zs)))
-(ll <- kernel - Z)
-
-## --- Utilizando a computez, com critério de parada
-zs1 <- sapply(exp(Xb), tccPackage:::computez, phi = phi)
-(Z1 <- sum(log(zs1)))
-(ll1 <- kernel - Z1)
-
 }
 \author{
 Eduardo E. R. Junior, \email{edujrrib@gmail.com}
