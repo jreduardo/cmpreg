@@ -56,7 +56,7 @@ cmptest <- function(...) {
     trv <- 2 * (llC - llP)
     pvs <- pchisq(q = trv, df = 1, lower.tail = FALSE)
     ##-------------------------------------------
-    phi <- sapply(cmp.list, function(model) model@coef[1])
+    phi <- sapply(cmp.list, function(model) model@fullcoef[1])
     ##-------------------------------------------
     out <- cbind(phi = phi, "P(>Chisq)" = pvs)
     rownames(out) <- rep("phi == 0", length(cmp.list))
@@ -153,7 +153,7 @@ predict.mle2 <- function(object, newdata,
     ##----------------------------------------
     if (!missing(newdata)) {
         if (is.matrix(newdata)) {
-            if (all(colnames(newdata) == names(coef(object)[-1]))) {
+            if (all(colnames(newdata) == names(object@fullcoef)[-1])) {
                 X <- newdata
             } else {
                 stop(paste("Nomes das colunas em `newdata` nao",
@@ -186,7 +186,7 @@ predict.mle2 <- function(object, newdata,
                    Vc <- V[-1, -1] - V[-1, 1] %*%
                        solve(V[1, 1]) %*% V[1, -1]
                    eta <- cholV_eta(Vc, X,
-                                    b = coef(object)[-1],
+                                    b = object@fullcoef[-1],
                                     qn = qn)
                    switch(type,
                           "link" = eta,
@@ -194,7 +194,7 @@ predict.mle2 <- function(object, newdata,
                               apply(as.matrix(eta),
                                     MARGIN = 2,
                                     FUN = calc_mean_cmp,
-                                    phi = coef(object)[1],
+                                    phi = object@fullcoef[1],
                                     sumto = object@data$sumto)})
                })
     pred <- cbind(pred)
