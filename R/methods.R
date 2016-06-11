@@ -1,10 +1,72 @@
 #' @importFrom stats qnorm binomial coef delete.response formula glm
 #'     glm.fit model.frame model.matrix model.offset model.response
-#'     optim plogis poisson resid terms
+#'     optim plogis poisson resid terms pchisq
 NULL
 
+#' @title Teste de Hipóteses para o parâmetro \eqn{phi}
+#' @author Eduardo Junior, \email{edujrrib@gmail.com}
+#' @description Realiza um teste de hipóteses bilateral para hipótese
+#'     nula \eqn{H_0:\, \phi = 0}, ou seja, se o modelo COM-Poisson pode
+#'     ser reduzido ao Poisson.
+#' @param ... Uma sequência de modelos em que se realizará o teste.
+#' @export
+
+cmptest <- function(...) {
+    cmp.list <- list(...)
+    ##-------------------------------------------
+    cls <- sapply(cmp.list, function(model) class(model))
+    if (sum(!cls %in% "mle2") > 0 ) {
+        stop(paste("Fun\\u00e7\\u00e3o dispon\\u00edvel apenas",
+                   "para objectos de classe `mle2`"))
+    }
+    ##-------------------------------------------
+    cll <- sapply(cmp.list, function(model)
+        as.character(model@call.orig), simplify = FALSE)
+    mdl <- sapply(cll, function(call) {
+        grep(x = call, pattern = "\\b(llcmp|llhurdle|llmixed)\\b",
+             value = TRUE)
+    })
+    cond <- sum(!mdl %in% c("llcmp", "llhurdle", "llmixed"))
+    if (cond > 0) {
+        stop(paste("Func\\u00e3o usada como `minuslogl`",
+                   "n\\u00e3o reconhecida."))
+    } else {
+        cond <- sum(mdl %in% c("llhurdle", "llmixed"))
+        if (cond > 0) {
+            stop(paste("Teste para o par\\u00e2metro phi em",
+                        paste(mdl, collapse = ", "),
+                       "ainda n\\u00e3o implementado."))
+        }
+    }
+    ##-------------------------------------------
+    ## ## Fazer método print desta função
+    ## msg1 <- paste0("  Teste de hip\\u00f3ts bilateral para o",
+    ##                " par\\u00e2metro phi igual a zero\n")
+    ## if (comment) cat(msg1, sep = "\n")
+    ##-------------------------------------------
+    llP <- sapply(cmp.list, function(model) {
+        with(model@data, {
+            fit <- glm.fit(X, y, family = poisson())
+            loglik <- with(fit, rank - aic/2)
+            loglik
+        })
+    })
+    llC <- sapply(cmp.list, function(model) -model@min)
+    ##-------------------------------------------
+    trv <- 2 * (llC - llP)
+    pvs <- pchisq(q = trv, df = 1, lower.tail = FALSE)
+    ##-------------------------------------------
+    phi <- sapply(cmp.list, function(model) model@coef[1])
+    ##-------------------------------------------
+    out <- cbind(phi = phi, "P(>Chisq)" = pvs)
+    rownames(out) <- rep("phi == 0", length(cmp.list))
+    return(out)
+}
+
+
+
 ## @title Obtenção Pontual e Intervalar dos Preditores Lineares
-## @author Walmes Zeviani, \email{walmes@@ufpr.br}.
+## @author Walmes Zeviani, \email{walmes@ufpr.br}.
 ## @description Função para obter o valores de \eqn{\eta = X\beta} que
 ##    é o preditor da parte de locação do modelo de regressão,
 ##    incluindo o intervalo de confiança para \eqn{\eta}, caso
