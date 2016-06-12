@@ -16,13 +16,13 @@ Depends:
 	bbmle
 Imports:
 	lattice,
+	latticeExtra,
 	lme4,
 	mvtnorm,
 	methods
 Suggests:
     corrplot,
     knitr,
-    latticeExtra,
     rmarkdown
 License: GPL
 Encoding: UTF-8
