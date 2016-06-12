@@ -139,7 +139,7 @@ hurdlecmp <- function(formula, data, sumto = NULL, ...) {
     ## Start - parametros iniciais
     startz <- glm.fit(Xz, factor(y > 0), family = binomial())$coef
     startc <- c(phi = 0, glm.fit(Xc, y, family = poisson())$coef)
-    start <- c(zero = startz, count = startc)
+    start <- c(count = startc, zero = startz)
     ##-------------------------------------------
     ## Otimização via bbmle
     bbmle::parnames(llhurdle) <- names(start)
