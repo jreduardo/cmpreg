@@ -145,7 +145,8 @@ hurdlecmp <- function(formula, data, sumto = NULL, ...) {
     bbmle::parnames(llhurdle) <- names(start)
     model <- bbmle::mle2(llhurdle, start = start,
                          data = list(y = y, Xc = Xc, Xz = Xz,
-                                     sumto = sumto),
+                                     sumto = sumto, termsc = termsc,
+                                     termsz = termsz),
                          vecpar = TRUE, ...)
     return(model)
 }
