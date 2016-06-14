@@ -63,26 +63,24 @@ cmptest <- function(...) {
     return(out)
 }
 
-
-
-## @title Obtenção Pontual e Intervalar dos Preditores Lineares
-## @author Walmes Zeviani, \email{walmes@ufpr.br}.
-## @description Função para obter o valores de \eqn{\eta = X\beta} que
-##    é o preditor da parte de locação do modelo de regressão,
-##    incluindo o intervalo de confiança para \eqn{\eta}, caso
-##    corretamente especificado pelo argumento \code{qn}.
-## @param V Matriz de variância e covariância das estimativas dos
-##    parâmetros da parte de locação do modelo, necessário para
-##    calcular a média.
-## @param X Matriz de funções lineares para obter \eqn{\hat{eta} = X
-##    \hat{\beta}}, em que \eqn{\beta} são os coeficientes da porção de
-##    locação.
-## @param b Estimativas dos parâmetros da parte de locação, ou seja,
-##    \eqn{\hat{\beta}}.
-## @param qn Quantis da distribuição normal padrão apropriados para um
-##    intervalo de confiança conhecida.
-## @return Um vetor se \code{length(qn) == 1} e uma matriz caso
-##    contrário.
+#' @title Obtenção Pontual e Intervalar dos Preditores Lineares
+#' @author Walmes Zeviani, \email{walmes@ufpr.br}.
+#' @description Função para obter o valores de \eqn{\eta = X\beta} que
+#'    é o preditor da parte de locação do modelo de regressão,
+#'    incluindo o intervalo de confiança para \eqn{\eta}, caso
+#'    corretamente especificado pelo argumento \code{qn}.
+#' @param V Matriz de variância e covariância das estimativas dos
+#'    parâmetros da parte de locação do modelo, necessário para
+#'    calcular a média.
+#' @param X Matriz de funções lineares para obter \eqn{\hat{eta} = X
+#'    \hat{\beta}}, em que \eqn{\beta} são os coeficientes da porção de
+#'    locação.
+#' @param b Estimativas dos parâmetros da parte de locação, ou seja,
+#'    \eqn{\hat{\beta}}.
+#' @param qn Quantis da distribuição normal padrão apropriados para um
+#'    intervalo de confiança conhecida.
+#' @return Um vetor se \code{length(qn) == 1} e uma matriz caso
+#'    contrário.
 cholV_eta <- function(V, X, b, qn) {
     eta <- c(X %*% b)
     if (length(qn) > 1) {
@@ -100,15 +98,209 @@ cholV_eta <- function(V, X, b, qn) {
     return(eta)
 }
 
+#' @title Valores preditos pelo Modelo Conway-Maxwell-Poisson de efeitos
+#'     fixos
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#' @description Calcula os valores preditos pelo modelo COM-Poisson
+#'     ajustado na escala da função de ligação \eqn{\log(\lambda)}
+#'     (default), ou na escala da média da contagem, que neste caso não
+#'     é expressamente definidas, mas é função dos parâmetros
+#'     \eqn{\lambda} e \eqn{\nu} da distribuição. Intervalos de
+#'     confiança para a média da contagem ou para os parâmetros
+#'     \eqn{\lambda}'s estimados também estão implementados.
+#' @param object O objeto produzido por \code{\link{cmp}}
+#' @param newdata Valores das covariáveis para predição, em formato de
+#'     \code{data.frame} ou \code{matrix}, respeitando a nomenclatura
+#'     das variáveis que compõem o modelo.
+#' @param type A escala da predição. Assume valores \code{link} para a
+#'     escala logarítmica do parâmetro \eqn{\lambda} e \code{response}
+#'     para escala da contagem.
+#' @param interval Para construção dos intervalos de confiança. Assume
+#'     valores \code{none} onde o intervalo não é calculado e
+#'     \code{confidence} para construção de intervalos de confiança para
+#'     a média da contagem sob o nível de confiança \code{level}.
+#' @param level Nível de confiança para o intervalo predito.
+#' @return Um vetor, \code{vector} de valores preditos pelo modelo
+#'     COM-Poisson, no caso de \code{interval = "none"} e uma matriz,
+#'     \code{matrix} com os valores ajustados, inferiores e superiores
+#'     (\emph{lwr}, \emph{fit} e \emph{upr} respectivamente) no caso de
+#'     \code{interval = "confidence"}.
+
+cmp.predict <- function(object, newdata,
+                        type = c("link", "response"),
+                        interval = c("none", "confidence"),
+                        level = 0.95) {
+    ##-------------------------------------------
+    type <- match.arg(type)
+    interval <- match.arg(interval)
+    ##----------------------------------------
+    if (!is.null(newdata)) {
+        if (is.matrix(newdata)) {
+            if (all(colnames(newdata) == names(object@fullcoef)[-1])) {
+                X <- newdata
+            } else {
+                stop(paste("Nomes das colunas em `newdata` nao",
+                           "bate com dos coeficientes."))
+            }
+        } else {
+            if (is.data.frame(newdata)) {
+                terms <- delete.response(object@data$terms)
+                frame <- model.frame(terms, newdata)
+                X <- model.matrix(terms, frame)
+            } else {
+                stop("`newdata` deve ser matriz ou data.frame.")
+            }
+        }
+    } else {
+        X <- object@data$X
+    }
+    ##-------------------------------------------
+    qn <- -qnorm((1 - level[1])/2)
+    qn <- switch(interval[1],
+                 confidence = qn * c(lwr = -1, fit = 0, upr = 1),
+                 none = qn * c(fit = 0))
+    ##-------------------------------------------
+    V <- object@vcov
+    Vc <- V[-1, -1] - V[-1, 1] %*%
+        solve(V[1, 1]) %*% V[1, -1]
+    eta <- cholV_eta(Vc, X,
+                     b = object@fullcoef[-1],
+                     qn = qn)
+    ##-------------------------------------------
+    pred <- switch(type,
+                   "link" = eta,
+                   "response" = {
+                       apply(as.matrix(eta),
+                             MARGIN = 2,
+                             FUN = calc_mean_cmp,
+                             phi = object@fullcoef[1],
+                             sumto = object@data$sumto)}
+                   )
+    pred <- cbind(pred)
+    colnames(pred) <- names(qn)
+    return(pred)
+}
+
+#' @title Valores preditos pelo Modelo Hurdle Conway-Maxwell-Poisson
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#' @description Calcula os valores preditos pelo modelo Hurdle
+#'     COM-Poisson ajustado. São disponíveis os valores preditos na
+#'     escala da contagem ou ainda as probabilidades preditas em um
+#'     intervalo \code{at}. Adicionalmente disponibilizamos predições
+#'     para os componentes zero e de contagem não nula. Nesses outros
+#'     dois tipos de predição o valor do preditor linear \eqn{\eta} é
+#'     escalonado para a média da distribuição considera, Binomial e
+#'     COM-Poisson para as componentes zero e de contagem
+#'     respectivamente.
+#' @param object O objeto produzido por \code{\link{hurdlecmp}}
+#' @param newdata Valores das covariáveis para predição, em formato de
+#'     \code{data.frame} ou \code{matrix}, respeitando a nomenclatura
+#'     das variáveis que compõem o modelo. Lembre-se de qque como agora
+#'     temos dois processos atuantes, a definição dessa matriz deve
+#'     contemplar os preditor para ambas as componentes.
+#' @param type A escala da predição. Assume valores \code{response} para a
+#'     média da contagem considerando o modelo combinado, \code{prob},
+#'     para as probabilidades calculadas para \code{at} sob o modelo
+#'     ajustado, \code{zero} para retornar o valor de \eqn{\hat{\pi}}, a
+#'     probabilidade prevista pelo modelo Binomial para y>0 e
+#'     \code{count} para a média da variável COM-Poisson desconsiderando
+#'     a componente de contagens nulas.
+#' @param at Intervalos de valores inteiros sob os quais calcular-se-á
+#'     as probabilidades descritas pelo modelo. Esse argumento só tem
+#'     efeito quando \code{type = "prob"}.
+#' @return Os valores preditos pelo modelo, em formato de vetor para
+#'     \code{type = c("link", "response", "count", "zero")} e de forma
+#'     matricial para \code{type = "prob"}.
+
+hurdle.predict <- function(object, newdata,
+                           type = c("response", "count",
+                                    "zero", "prob"),
+                           at = NULL) {
+    ##-------------------------------------------
+    type <- match.arg(type)
+    if (type == "prob" && is.null(at)) {
+        at <- seq(min(object@data$y), max(object@data$y))
+        message(paste0(
+            "Intervalo para calculo das probabilidades",
+            "nao definido. Probabilidades calculadas nos",
+            "valores de y = ", at[1], " a y = ", rev(at)[1], "."))
+    }
+    ##-------------------------------------------
+    coefnames <- names(object@fullcoef)
+    indexc <- grepl(pattern = "^count.*", coefnames)
+    ##----------------------------------------
+    if (!is.null(newdata)) {
+        if (is.matrix(newdata)) {
+            if (all(colnames(newdata) == coefnames[-1])) {
+                X <- newdata[, indexc]
+                Z <- newdata[, !indexc]
+            } else {
+                stop(paste("Nomes das colunas em `newdata` nao",
+                           "bate com dos coeficientes. Lembre-se de",
+                           "colocar os prefixos `count.` e `zero.`"))
+            }
+        } else {
+            if (is.data.frame(newdata)) {
+                termsX <- delete.response(object@data$termsc)
+                termsZ <- delete.response(object@data$termsz)
+                X <- model.matrix(termsX, newdata)
+                Z <- model.matrix(termsZ, newdata)
+            } else {
+                stop("`newdata` deve ser matriz ou data.frame.")
+            }
+        }
+    } else {
+        X <- object@data$Xc
+        Z <- object@data$Xz
+    }
+    ##-------------------------------------------
+    phi <- object@fullcoef[indexc][1]
+    count.pars <- object@fullcoef[indexc][-1]
+    zero.pars <- object@fullcoef[!indexc]
+    ##-------------------------------------------
+    etaX <- X %*% count.pars
+    etaZ <- Z %*% zero.pars
+    ##-------------------------------------------
+    muz <- plogis(etaZ)
+    muc <- calc_mean_cmp(etaX, phi = phi)
+    p0.count <- dcmp(0, etaX, phi = phi)
+    ##-------------------------------------------
+    out <- switch(
+        type,
+        "response" = {
+            c(muc * muz / (1 - p0.count))
+        },
+        "count" = {
+            c(muc)
+        },
+        "zero" = {
+            c(muz)
+        },
+        "prob" = {
+            at <- unique(at)
+            probs <- matrix(NA, nrow = length(muc), ncol = length(at))
+            probs[, 1] <- (1 - muz)
+            for (i in 2:length(at)) {
+                ## probs[, i] <- (muz) * dcmp(at[i], etaX, phi = phi) *
+                ## (1 - p0.count)^-1
+                probs[, i] <- exp(
+                    log(muz) +
+                    dcmp(at[i], etaX, phi = phi, log = TRUE) -
+                    log(1 - p0.count))
+            }
+            ## colnames(probs) <- paste0("y = ", at)
+            ## rownames(probs) <- paste0("P(Y[", 1:length(muc), "] = y)")
+            colnames(probs) <- at
+            rownames(probs) <- 1:length(muc)
+            probs
+        }
+    )
+    return(out)
+}
+
 ## @title Valores preditos pelo Modelo Conway-Maxwell-Poisson
 ## @author Eduardo E. R. Junior, \email{edujrrib@gmail.com} e Walmes
 ##    M. Zeviani
-## @usage
-## predict(object,
-##        newdata,
-##        type = c("link", "response"),
-##        interval = c("none", "confidence"),
-##        level = 0.95, ...)
 ## @description Calcula os valores preditos pelo modelo COM-Poisson
 ##    ajustado na escala da função de ligação, que neste caso não é
 ##    expressamente definidas, mas é função dos parâmetros \eqn{\lambda}
@@ -132,10 +324,8 @@ cholV_eta <- function(V, X, b, qn) {
 ##    \code{matrix} com os valores ajustados, inferiores e superiores
 ##    (\emph{fit}, \emph{lwr} e \emph{upr} respectivamente) no caso de
 ##    \code{interval = "confidence"}
-predict.mle2 <- function(object, newdata,
-                         type = c("link", "response"),
-                         interval = c("none", "confidence"),
-                         level = 0.95, ...) {
+
+predict.mle2 <- function(object, newdata, ...) {
     ##-------------------------------------------
     cll <- as.character(object@call.orig)
     mdl <- grep(x = cll,
@@ -145,62 +335,25 @@ predict.mle2 <- function(object, newdata,
         stop(paste("Func\\u00e3ao usada como `minuslogl`",
                    "n\\u00e3ao reconhecida."))
     } else {
-        if (mdl %in% c("llhurdle", "llmixed")) {
+        if (mdl %in% c("llmixed")) {
             stop(paste("M\\u00e9todo de predi\\u00e7c\\u00e3ao",
-                       "para ", mdl, "ainda n\\u00e3ao implementado."))
+                       "para", mdl, "ainda n\\u00e3ao implementado."))
         }
     }
-    ##----------------------------------------
-    if (!missing(newdata)) {
-        if (is.matrix(newdata)) {
-            if (all(colnames(newdata) == names(object@fullcoef)[-1])) {
-                X <- newdata
-            } else {
-                stop(paste("Nomes das colunas em `newdata` nao",
-                           "bate com dos coeficientes."))
-            }
-        } else {
-            if (is.data.frame(newdata)) {
-                terms <- delete.response(object@data$terms)
-                frame <- model.frame(terms, newdata)
-                X <- model.matrix(terms, frame)
-            } else {
-                stop("`newdata` deve ser matriz ou data.frame.")
-            }
-        }
-    } else {
-        X <- object@data$X
+    ##-------------------------------------------
+    if (missing(newdata)) {
+        newdata = NULL
     }
     ##-------------------------------------------
-    interval <- match.arg(interval)
-    qn <- -qnorm((1 - level[1])/2)
-    qn <- switch(interval[1],
-                 confidence = qn * c(lwr = -1, fit = 0, upr = 1),
-                 none = qn * c(fit = 0))
-    ##-------------------------------------------
-    type <- match.arg(type)
-    pred <-
-        switch(mdl,
-               "llcmp" = {
-                   V <- object@vcov
-                   Vc <- V[-1, -1] - V[-1, 1] %*%
-                       solve(V[1, 1]) %*% V[1, -1]
-                   eta <- cholV_eta(Vc, X,
-                                    b = object@fullcoef[-1],
-                                    qn = qn)
-                   switch(type,
-                          "link" = eta,
-                          "response" = {
-                              apply(as.matrix(eta),
-                                    MARGIN = 2,
-                                    FUN = calc_mean_cmp,
-                                    phi = object@fullcoef[1],
-                                    sumto = object@data$sumto)})
-               })
-    pred <- cbind(pred)
-    colnames(pred) <- names(qn)
-    return(pred)
+    out <- switch(mdl,
+                  "llcmp" = cmp.predict(
+                      object = object, newdata = newdata, ...),
+                  "llhurdle" = hurdle.predict(
+                      object = object, newdata = newdata, ...)
+                  )
+    return(out)
 }
+
 
 ## @title Valores Ajustados pelo Modelo Conway-Maxwell-Poisson
 ## @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
