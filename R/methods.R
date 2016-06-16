@@ -1,6 +1,6 @@
 #' @importFrom stats qnorm binomial coef delete.response formula glm
 #'     glm.fit model.frame model.matrix model.offset model.response
-#'     optim plogis poisson resid terms pchisq
+#'     optim plogis poisson resid terms pchisq as.formula
 NULL
 
 #' @title Teste de Hipóteses para o parâmetro \eqn{phi}
@@ -63,6 +63,35 @@ cmptest <- function(...) {
     return(out)
 }
 
+#' @title Obtenção dos Efeitos Aleatórios no Modelo COM-Poisson Misto
+#' @export
+#' @author Eduardo Junior, \email{edujrrib@gmail.com}
+#' @description Encontra os efeitos aleatórios que maximizam a
+#'     log-verossimilhança do modelo  COM-Poisson de efeitos mistos.
+#' @param object Uma sequência de modelos em que se realizará o teste.
+
+mixedcmp.ranef <- function(object) {
+    ##-------------------------------------------
+    id <- as.character(object@data$form.Z[[1]][[3]])
+    out <- with(object@data, {
+        sapply(dados.id, function(dados) {
+            ##-------------------------------------------
+            mf <- model.frame(formula, data = dados)
+            yi <- model.response(mf)
+            Xi <- model.matrix(form.X, dados)
+            Zi <- t(as.matrix(lme4::mkReTrms(form.Z, mf)$Zt))
+            ##-------------------------------------------
+            optim(0, llicmp, method = "BFGS",
+                  control = list(fnscale = -1),
+                  params = object@fullcoef,
+                  y = yi,
+                  X = Xi,
+                  Z = Zi)$par
+        })
+    })
+    return(out)
+}
+
 #' @title Obtenção Pontual e Intervalar dos Preditores Lineares
 #' @author Walmes Zeviani, \email{walmes@ufpr.br}.
 #' @description Função para obter o valores de \eqn{\eta = X\beta} que
@@ -96,6 +125,68 @@ cholV_eta <- function(V, X, b, qn) {
                      FUN = "+")
     }
     return(eta)
+}
+
+
+#' @title Valores preditos pelo Modelo Conway-Maxwell-Poisson de efeitos
+#'     mistos
+#' @author Eduardo E. R. Junior, \email{edujrrib@gmail.com}
+#' @description Calcula os valores preditos pelo modelo COM-Poisson
+#'     ajustado na escala da função de ligação \eqn{\log(\lambda)}
+#'     (default), ou na escala da média da contagem, que neste caso não
+#'     é expressamente definida, mas é função dos parâmetros
+#'     \eqn{\lambda} e \eqn{\nu} da distribuição.
+#' @param object O objeto produzido por \code{\link{mixedcmp}}
+#' @param newdata Valores das covariáveis para predição, em formato de
+#'     \code{data.frame}.
+#' @param type A escala da predição. Assume valores \code{link} para a
+#'     escala logarítmica do parâmetro \eqn{\lambda} e \code{response}
+#'     para escala da contagem.
+#' @return Um vetor, \code{vector} de valores preditos pelo modelo
+#'     COM-Poisson de efeitos mistos.
+
+mixedcmp.predict <- function(object, newdata = NULL,
+                             type = c("link", "response")) {
+    ##-------------------------------------------
+    type <- match.arg(type)
+    params <- object@fullcoef
+    ##-------------------------------------------
+    id <- as.character(object@data$form.Z[[1]][[3]])
+    nZ <- sum(grepl("lsigma", names(object@fullcoef)))
+    nX <- length(params) - nZ - 1
+    ##-------------------------------------------
+    id <- as.character(object@data$form.Z[[1]][[3]])
+    if (!is.null(newdata)) {
+        dados.id <- split(newdata, newdata[, id])
+    } else {
+        dados.id <- object@data$dados.id
+    }
+    ##-------------------------------------------
+    phi <- params[1]
+    betas <- params[(2 + nZ):(nZ + nX + 1)]
+    ranef <- mixedcmp.ranef(object)
+    ##-------------------------------------------
+    out <- vector("list", length = length(dados.id))
+    for (i in 1:length(out)) {
+        ##-------------------------------------------
+        dados <- dados.id[[i]]
+        ##-------------------------------------------
+        Xi <- model.matrix(object@data$form.X[-2], dados)
+        form.me <- as.formula(paste0("~0 + ", id))
+        Zi <- model.matrix(form.me, dados)
+        ##-------------------------------------------
+        loglambdas <- Xi %*% betas + Zi %*% ranef
+        out[[i]] <- switch(
+            type,
+            "link" = {
+                loglambdas
+            },
+            "response" = {
+                calc_mean_cmp(loglambda = loglambdas, phi = phi)
+            }
+        )
+    }
+    return(unlist(out))
 }
 
 #' @title Valores preditos pelo Modelo Conway-Maxwell-Poisson de efeitos
@@ -334,11 +425,6 @@ predict.mle2 <- function(object, newdata, ...) {
     if (!mdl %in% c("llcmp", "llhurdle", "llmixed")) {
         stop(paste("Func\\u00e3ao usada como `minuslogl`",
                    "n\\u00e3ao reconhecida."))
-    } else {
-        if (mdl %in% c("llmixed")) {
-            stop(paste("M\\u00e9todo de predi\\u00e7c\\u00e3ao",
-                       "para", mdl, "ainda n\\u00e3ao implementado."))
-        }
     }
     ##-------------------------------------------
     if (missing(newdata)) {
@@ -349,6 +435,8 @@ predict.mle2 <- function(object, newdata, ...) {
                   "llcmp" = cmp.predict(
                       object = object, newdata = newdata, ...),
                   "llhurdle" = hurdle.predict(
+                      object = object, newdata = newdata, ...),
+                  "llmixed" = mixedcmp.predict(
                       object = object, newdata = newdata, ...)
                   )
     return(out)
