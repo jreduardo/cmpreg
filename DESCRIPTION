@@ -1,4 +1,4 @@
-Package: tccPackage
+Package: cmpreg
 Title: Modelo de Regressão Conway-Maxwell-Poisson e Extensões
 Version: 0.0.1
 Authors@R: as.person(c(
