@@ -1,6 +1,6 @@
 <img src = "https://github.com/JrEduardo/cmpreg/raw/master/inst/img/tccPackage.png" width=150px align="right" display="block">
 
-## tccPackage: Extensões e Aplicações do Modelo COM-Poisson ##
+# `cmpreg`: Ajuste de Modelos de Regressões COM-Poisson #
 
 > [Eduardo E. R. Junior](http://jreduardo.github.io/) - Curso
 de Estatística - Universidade Federal do Paraná
@@ -18,7 +18,7 @@ considerados no pacote em formato de projeto e relatório de pesquisa.
 
 ***
 
-### Introdução ###
+## Introdução ##
 
 Dados de contagem não raramente são analisados utilizando a distribuição
 Poisson como distribuição associada a um modelo linear generalizado, no
@@ -36,7 +36,7 @@ sub e superdispersão devido a adição de mais um parâmetro. O pacote
 que utilizam essa distribuição. Dados de contagem inflacionados de
 zeros, e com estrutura para inclusão de efeitos mistos são considerados.
 
-### Download e Instalação ###
+## Download e Instalação ##
 
 O pacote é desenvolvido sob versionamento [Git] e mantido no serviço de
 hospedagem [GitHub] e [GitLab do C3SL]. Você poderá fazer o _download_ e instalação
@@ -57,15 +57,15 @@ install_git("https://gitlab.c3sl.ufpr.br/eerj12/tccPackage.git")
 2. Baixando o código-fonte comprimido e instalando de forma usual. Aqui
    há uma diferença para o sistema operacional utilizado.
    - **Linux/Mac**
-   Baixe o arquivo [tccPackage_0.0.1.tar.gz] e instale-o em uma sessão R
+   Baixe o arquivo [cmpreg_0.0.1.tar.gz] e instale-o em uma sessão R
 ```r
-install.packages("tccPackage_0.0.1.tar.gz", repos = NULL)
+install.packages("cmpreg_0.0.1.tar.gz", repos = NULL)
 ```
 
    - **Windows**
-   Baixe o arquivo [tccPackage_0.0.1.zip] e instale-o em uma sessão R
+   Baixe o arquivo [cmpreg_0.0.1.zip] e instale-o em uma sessão R
 ```r
-install.packages("tccPackage_0.0.1.zip", repos = NULL)
+install.packages("cmpreg_0.0.1.zip", repos = NULL)
 ```
 
 ## Licença ##
