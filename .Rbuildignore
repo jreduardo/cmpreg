@@ -1,11 +1,2 @@
-\#*\#
-^\.\#*
-^.*\.Rproj$
-^\.Rproj\.user$
-README.*
-CONTRIBUTING.*
-LICENSE
-roteiro.*.R
-^data-raw$
-tccPackage.pdf
-TODO.md
+^LICENSE\.md$
+^README\.md$

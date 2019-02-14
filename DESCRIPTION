@@ -1,30 +1,18 @@
 Package: cmpreg
-Title: Modelo de Regressão Conway-Maxwell-Poisson e Extensões
+Title: Reparametrized COM-Poisson Regression Models
 Version: 0.0.1
-Authors@R: as.person(c(
-    "Eduardo Elias Ribeiro Junior <edujrrib@gmail.com> [aut, cre]",
-    "Walmes Marques Zeviani <walmes@ufpr.br> [ctb]"))
-Description: O pacote contém funções para ajuste dos modelos de
-    regressão Conway-Maxwell-Poisson (COM-Poisson) para dados de
-    contagem sub ou subdispersos. Modelos de regressão usual, modelos de
-    regressão para dados inflacionados de zeros e modelos de regressão
-    acomodando efeitos mistos são considerados. O pacote também contém
-    funções métodos para análise dos objetos R que representam os
-    modelos ajustados.
-Depends:
-    R (>= 3.2.3),
-	bbmle
-Imports:
-	lattice,
-	latticeExtra,
-	lme4,
-	mvtnorm,
-	methods
-Suggests:
-    corrplot,
-    knitr,
-    rmarkdown
-License: GPL
+Authors@R:
+    person(given = "Eduardo",
+           family = "Elias Ribeiro Junior",
+           role = c("aut", "cre"),
+           email = "edujrrib@gmail.com")
+Description: Provide functions to fit Conway-Maxwell-Poisson
+    (COM-Poisson) models with varying dispersion in its original
+    parametrization and in the mean-type parametrization proposed by
+    Ribeiro Jr, et al. 2018 <arxiv.org/abs/1801.09795>. The functions to
+    computate the normalizing constant are written in C++, so the
+    computations is reasonably fast.
+License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 5.0.1
-VignetteBuilder: knitr
+LazyData: true
+RoxygenNote: 6.1.1
