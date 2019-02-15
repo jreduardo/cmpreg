@@ -1,0 +1,126 @@
+stage	defol	rept	bolls
+vegetative	0	1	10
+vegetative	0	2	9
+vegetative	0	3	8
+vegetative	0	4	8
+vegetative	0	5	10
+vegetative	0.25	1	11
+vegetative	0.25	2	9
+vegetative	0.25	3	10
+vegetative	0.25	4	10
+vegetative	0.25	5	10
+vegetative	0.5	1	8
+vegetative	0.5	2	8
+vegetative	0.5	3	10
+vegetative	0.5	4	8
+vegetative	0.5	5	9
+vegetative	0.75	1	9
+vegetative	0.75	2	7
+vegetative	0.75	3	7
+vegetative	0.75	4	8
+vegetative	0.75	5	9
+vegetative	1	1	8
+vegetative	1	2	6
+vegetative	1	3	6
+vegetative	1	4	5
+vegetative	1	5	6
+flower bud	0	1	7
+flower bud	0	2	8
+flower bud	0	3	8
+flower bud	0	4	9
+flower bud	0	5	10
+flower bud	0.25	1	9
+flower bud	0.25	2	12
+flower bud	0.25	3	7
+flower bud	0.25	4	10
+flower bud	0.25	5	9
+flower bud	0.5	1	8
+flower bud	0.5	2	9
+flower bud	0.5	3	9
+flower bud	0.5	4	10
+flower bud	0.5	5	8
+flower bud	0.75	1	11
+flower bud	0.75	2	10
+flower bud	0.75	3	7
+flower bud	0.75	4	8
+flower bud	0.75	5	8
+flower bud	1	1	7
+flower bud	1	2	7
+flower bud	1	3	7
+flower bud	1	4	7
+flower bud	1	5	8
+blossom	0	1	10
+blossom	0	2	9
+blossom	0	3	8
+blossom	0	4	12
+blossom	0	5	8
+blossom	0.25	1	7
+blossom	0.25	2	5
+blossom	0.25	3	5
+blossom	0.25	4	7
+blossom	0.25	5	5
+blossom	0.5	1	6
+blossom	0.5	2	5
+blossom	0.5	3	7
+blossom	0.5	4	4
+blossom	0.5	5	7
+blossom	0.75	1	8
+blossom	0.75	2	5
+blossom	0.75	3	7
+blossom	0.75	4	6
+blossom	0.75	5	4
+blossom	1	1	5
+blossom	1	2	5
+blossom	1	3	4
+blossom	1	4	4
+blossom	1	5	5
+boll	0	1	8
+boll	0	2	10
+boll	0	3	7
+boll	0	4	8
+boll	0	5	10
+boll	0.25	1	9
+boll	0.25	2	6
+boll	0.25	3	6
+boll	0.25	4	8
+boll	0.25	5	6
+boll	0.5	1	9
+boll	0.5	2	7
+boll	0.5	3	11
+boll	0.5	4	8
+boll	0.5	5	9
+boll	0.75	1	6
+boll	0.75	2	6
+boll	0.75	3	6
+boll	0.75	4	6
+boll	0.75	5	7
+boll	1	1	3
+boll	1	2	3
+boll	1	3	2
+boll	1	4	4
+boll	1	5	3
+boll open	0	1	11
+boll open	0	2	7
+boll open	0	3	9
+boll open	0	4	12
+boll open	0	5	11
+boll open	0.25	1	9
+boll open	0.25	2	13
+boll open	0.25	3	8
+boll open	0.25	4	10
+boll open	0.25	5	10
+boll open	0.5	1	9
+boll open	0.5	2	7
+boll open	0.5	3	7
+boll open	0.5	4	9
+boll open	0.5	5	9
+boll open	0.75	1	8
+boll open	0.75	2	8
+boll open	0.75	3	10
+boll open	0.75	4	8
+boll open	0.75	5	10
+boll open	1	1	9
+boll open	1	2	8
+boll open	1	3	10
+boll open	1	4	8
+boll open	1	5	10

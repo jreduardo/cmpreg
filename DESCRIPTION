@@ -12,6 +12,8 @@ Description: Provide functions to fit Conway-Maxwell-Poisson
     Ribeiro Jr, et al. 2018 <arxiv.org/abs/1801.09795>. The functions to
     computate the normalizing constant are written in C++, so the
     computations is reasonably fast.
+Depends:
+    R (>= 2.10)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

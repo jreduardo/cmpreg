@@ -1,0 +1,121 @@
+treat	time	block	nleaves
+Pinus bark	4	1	6
+Pinus bark	4	2	6
+Pinus bark	4	3	6
+Pinus bark	4	4	7
+Eucalyptus bark	4	1	7
+Eucalyptus bark	4	2	6
+Eucalyptus bark	4	3	6
+Eucalyptus bark	4	4	7
+Coxim	4	1	6
+Coxim	4	2	6
+Coxim	4	3	6
+Coxim	4	4	7
+Coconut fiber	4	1	6
+Coconut fiber	4	2	6
+Coconut fiber	4	3	6
+Coconut fiber	4	4	7
+Xaxim	4	1	7
+Xaxim	4	2	6
+Xaxim	4	3	7
+Xaxim	4	4	7
+Pinus bark	173	1	9
+Pinus bark	173	2	9
+Pinus bark	173	3	9
+Pinus bark	173	4	9
+Eucalyptus bark	173	1	8
+Eucalyptus bark	173	2	7
+Eucalyptus bark	173	3	7
+Eucalyptus bark	173	4	7
+Coxim	173	1	8
+Coxim	173	2	8
+Coxim	173	3	8
+Coxim	173	4	8
+Coconut fiber	173	1	8
+Coconut fiber	173	2	8
+Coconut fiber	173	3	8
+Coconut fiber	173	4	9
+Xaxim	173	1	10
+Xaxim	173	2	10
+Xaxim	173	3	9
+Xaxim	173	4	9
+Pinus bark	229	1	11
+Pinus bark	229	2	12
+Pinus bark	229	3	11
+Pinus bark	229	4	12
+Eucalyptus bark	229	1	11
+Eucalyptus bark	229	2	10
+Eucalyptus bark	229	3	10
+Eucalyptus bark	229	4	11
+Coxim	229	1	11
+Coxim	229	2	11
+Coxim	229	3	10
+Coxim	229	4	12
+Coconut fiber	229	1	10
+Coconut fiber	229	2	10
+Coconut fiber	229	3	10
+Coconut fiber	229	4	11
+Xaxim	229	1	13
+Xaxim	229	2	13
+Xaxim	229	3	12
+Xaxim	229	4	12
+Pinus bark	285	1	14
+Pinus bark	285	2	14
+Pinus bark	285	3	13
+Pinus bark	285	4	15
+Eucalyptus bark	285	1	12
+Eucalyptus bark	285	2	13
+Eucalyptus bark	285	3	12
+Eucalyptus bark	285	4	13
+Coxim	285	1	13
+Coxim	285	2	13
+Coxim	285	3	13
+Coxim	285	4	14
+Coconut fiber	285	1	13
+Coconut fiber	285	2	13
+Coconut fiber	285	3	12
+Coconut fiber	285	4	13
+Xaxim	285	1	14
+Xaxim	285	2	14
+Xaxim	285	3	14
+Xaxim	285	4	14
+Pinus bark	341	1	16
+Pinus bark	341	2	17
+Pinus bark	341	3	16
+Pinus bark	341	4	17
+Eucalyptus bark	341	1	15
+Eucalyptus bark	341	2	14
+Eucalyptus bark	341	3	14
+Eucalyptus bark	341	4	15
+Coxim	341	1	14
+Coxim	341	2	15
+Coxim	341	3	15
+Coxim	341	4	16
+Coconut fiber	341	1	14
+Coconut fiber	341	2	16
+Coconut fiber	341	3	14
+Coconut fiber	341	4	15
+Xaxim	341	1	15
+Xaxim	341	2	17
+Xaxim	341	3	15
+Xaxim	341	4	16
+Pinus bark	435	1	18
+Pinus bark	435	2	18
+Pinus bark	435	3	16
+Pinus bark	435	4	18
+Eucalyptus bark	435	1	15
+Eucalyptus bark	435	2	15
+Eucalyptus bark	435	3	15
+Eucalyptus bark	435	4	16
+Coxim	435	1	15
+Coxim	435	2	16
+Coxim	435	3	16
+Coxim	435	4	17
+Coconut fiber	435	1	16
+Coconut fiber	435	2	16
+Coconut fiber	435	3	15
+Coconut fiber	435	4	16
+Xaxim	435	1	16
+Xaxim	435	2	17
+Xaxim	435	3	16
+Xaxim	435	4	17
