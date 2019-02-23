@@ -80,7 +80,7 @@ cmp_fit <- function(start   = NULL,
                                 "SANN"),
                     lower   = -Inf,
                     upper   = Inf,
-                    hessian = FALSE,
+                    hessian = TRUE,
                     control = list()) {
   #--------------------------------------------
   # Dimensions
@@ -106,6 +106,7 @@ cmp_fit <- function(start   = NULL,
                method = method,
                lower = lower,
                upper = upper,
+               hessian = hessian,
                control = control,
                X = X,
                Z = Z,
@@ -141,7 +142,28 @@ cmp <- function(formula, dformula = ~1, data, ...) {
   y <- model.response(frame)
   #-------------------------------------------
   # Fit model
-  out <- cmp_fit(X = X, Z = Z, y = y, ...)
+  details <- cmp_fit(X = X, Z = Z, y = y, ...)
+  mean_coefficients <- details$par[1:ncol(X)]
+  disp_coefficients <- details$par[1:ncol(Z) + ncol(X)]
+  names(mean_coefficients) <- colnames(X)
+  names(disp_coefficients) <- colnames(Z)
+  vcov <- NULL
+  if ("hessian" %in% names(details))
+    vcov <- solve(details$hessian)
+  #--------------------------------------------
+  # Output
+  out <- list(call = match.call(),
+              formula = formula,
+              dformula = dformula,
+              nobs = length(y),
+              df.residual = length(y) - length(details$par),
+              details = details,
+              loglik = -details$value,
+              vcov = vcov,
+              coefficients = details$par,
+              mean_coefficients = mean_coefficients,
+              disp_coefficients = disp_coefficients,
+              data = list(X = X, Z = Z, y = y))
   class(out) <- "cmpreg"
   return(out)
 }
