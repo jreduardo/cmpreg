@@ -11,8 +11,9 @@
 NULL
 
 #-----------------------------------------------------------------------
-#' @rdname cmpreg-methods
 # Print method
+#' @rdname cmpreg-methods
+#'
 print.cmpreg <- function(x, digits = max(3L, getOption("digits") - 3L)) {
   cat("\nCOM-Poisson regression models", sep = "")
   cat("\nCall:  ",
@@ -40,8 +41,9 @@ print.cmpreg <- function(x, digits = max(3L, getOption("digits") - 3L)) {
 }
 
 #-----------------------------------------------------------------------
-#' @rdname cmpreg-methods
 # Get the log-likelihood
+#' @rdname cmpreg-methods
+#'
 logLik.cmpreg <- function(object, ...) {
   if (!missing(...))
     warning("extra arguments discarded")
@@ -53,28 +55,45 @@ logLik.cmpreg <- function(object, ...) {
 }
 
 #-----------------------------------------------------------------------
-#' @rdname cmpreg-methods
-#' @param what a character indicating which parameter coefficient is
-#'   required, parameters for the \code{"mean"} or for the \code{"mean"}
-#'   model.
 # Get the parameter estimates
+#' @rdname cmpreg-methods
+#' @param what a character indicating which parameter coefficients are
+#'   required, parameters for the \code{"mean"} or for the
+#'   \code{"dispersion"} model. If \code{"all"}, a list with
+#'   coefficients for the \code{mean} and for the \code{dispersion}
+#'   model is returned.
+#' @export
+#'
 coef.cmpreg <- function(object,
-                        what = c("all", "mean", "dispersion"), ...) {
+                        what = c("mean", "dispersion", "all"), ...) {
   if (!missing(...))
     warning("extra arguments discarded")
-  type <- match.arg(type)
-  out <- switch(type,
-                "all"        = object$coefficients,
+  what <- match.arg(what)
+  out <- switch(what,
+                "all"        = list(
+                  mean       = object$mean_coefficients,
+                  dispersion = object$disp_coefficients),
                 "mean"       = object$mean_coefficients,
                 "dispersion" = object$disp_coefficients)
   return(out)
 }
 
 #-----------------------------------------------------------------------
-#' @rdname cmpreg-methods
 # Get the variance-covariance matrix
+#' @rdname cmpreg-methods
+#'
 vcov.cmpreg <- function(object, ...) {
   if (!missing(...))
     warning("extra arguments discarded")
   return(object$vcov)
+}
+
+#-----------------------------------------------------------------------
+# Get the design matrices
+#' @rdname cmpreg-methods
+#'
+model.matrix.cmpreg <- function(object, ...) {
+  if (!missing(...))
+    warning("extra arguments discarded")
+  list(X = object$data$X, Z = object$data$Z)
 }
