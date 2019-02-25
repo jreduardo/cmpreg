@@ -151,6 +151,10 @@ cmp <- function(formula, dformula = ~1, data, ...) {
   if ("hessian" %in% names(details))
     vcov <- solve(details$hessian)
   #--------------------------------------------
+  # Fitted values
+  fitted_mean <- exp(X %*% mean_coefficients)
+  fitted_disp <- exp(Z %*% disp_coefficients)
+  #--------------------------------------------
   # Output
   out <- list(call = match.call(),
               formula = formula,
@@ -163,6 +167,8 @@ cmp <- function(formula, dformula = ~1, data, ...) {
               coefficients = details$par,
               mean_coefficients = mean_coefficients,
               disp_coefficients = disp_coefficients,
+              fitted_mean = c(fitted_mean),
+              fitted_disp = c(fitted_disp),
               data = list(X = X, Z = Z, y = y))
   class(out) <- "cmpreg"
   return(out)
