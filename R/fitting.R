@@ -140,6 +140,7 @@ cmp <- function(formula, dformula = ~1, data, ...) {
   X <- model.matrix(terms, frame)
   Z <- model.matrix(dformula, data)
   y <- model.response(frame)
+  if (dformula == ~ 1) colnames(Z) <- "log(nu)"
   #-------------------------------------------
   # Fit model
   details <- cmp_fit(X = X, Z = Z, y = y, ...)
