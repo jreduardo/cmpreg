@@ -176,3 +176,89 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
   class(tab) <- "anova"
   return(tab)
 }
+
+#-----------------------------------------------------------------------
+#' @title Likelihood ratio test for equidispersion
+#' @param object an object (or a list of objects) of class
+#'   \code{"cmpreg"}.
+#' @param ... possibly, others fitted models (objects of class
+#'   \code{"cmpreg"}).
+#' @param heading logical; if \code{TRUE}, the model formulas are
+#'   printed as heading. Default is \code{TRUE}.
+#' @details Note that, when more than one model is passed the models
+#'   \strong{are not compared among themselves}. Here, each model is
+#'   compared to Poisson and them organized in a table.
+#' @author Eduardo Jr <edujrrib@gmail.com>
+#' @export
+#'
+equitest <- function (object, ..., heading = TRUE) {
+  UseMethod("equitest", object)
+}
+
+#' @export
+equitest.cmpreg <- function(object, ..., heading = TRUE) {
+  dots <- list(...)
+  iscmp <- class(object) == "cmpreg"
+  #------------------------------------------
+  # Organize the list of models
+  if (!iscmp &  is.null(dots)) mlist <- object
+  if ( iscmp &  is.null(dots)) mlist <- list(object)
+  if (!iscmp & !is.null(dots)) mlist <- c(object, dots)
+  if ( iscmp & !is.null(dots)) mlist <- c(list(object), dots)
+  if (any(!vapply(mlist, inherits, what = "cmpreg", 0L)))
+    stop("Not all objects are of class \"cmpreg\"")
+  #--------------------------------------------
+  lpo <- vapply(mlist, function(x) x$poissonfit$loglik, 0)
+  npo <- vapply(mlist, function(x) length(x$poissonfit$coef), 0L)
+  rds <- vapply(mlist, function(x) x$df.residual, 0L)
+  lls <- vapply(mlist, function(x) x$loglik, 0)
+  obs <- vapply(mlist, function(x) x$nobs, 0L)
+  lrs <- 2 * (lls - lpo)
+  dfs <- obs - rds - npo
+  pvs <- pchisq(q = lrs, df = dfs, lower.tail = FALSE)
+  tab <- cbind("Resid.df"   = rds,
+               "Loglik"     = lls,
+               "LRT_stat"   = lrs,
+               "LRT_df"     = dfs,
+               "Pr(>LRT_stat)" = pvs)
+  rnames <- sprintf("Model %i", seq_along(mlist))
+  rownames(tab) <- rnames
+  #--------------------------------------------
+  if (heading) {
+    calls <- vapply(mlist, function(x)
+      deparse(x$call, width.cutoff = 500), "")
+    calls <- paste(paste0(rnames, ":"), calls)
+    calls <- gsub(", ", ",\n             ", calls)
+    calls <- paste(calls, collapse = "\n")
+  } else {
+    calls <- NULL
+  }
+  attr(tab, "heading") <- calls
+  class(tab) <- "equitest.cmpreg"
+  return(tab)
+}
+
+#' @export
+equitest.list <- function(object, ..., heading = TRUE) {
+  out <- equitest.cmpreg(object, ...)
+  if (heading & !is.null(names(object))) {
+    calls <- sprintf("Model %i: %s", seq_along(object), names(object))
+    attr(out, "heading") <- paste(calls, collapse = "\n")
+  }
+  return(out)
+}
+
+print.equitest.cmpreg <- function(x,
+                                  digits = max(getOption("digits") - 2L, 3L),
+                                  signif.stars = getOption("show.signif.stars"),
+                                  ...) {
+  cat("\nLikelihood ratio test for equidispersion", "\n\n")
+  if (!is.null(attr(x, "heading"))) {
+    cat(attr(x, "heading"), "\n\n")
+  }
+  printCoefmat(x, cs.ind = NA, tst.ind = 2:3, zap.ind = 5L,
+               digits = digits,
+               signif.stars = signif.stars,
+               ...)
+  invisible(x)
+}

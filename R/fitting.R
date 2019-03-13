@@ -55,12 +55,12 @@ llcmp <- function(params, X, Z, y) {
 
 #-----------------------------------------------------------------------
 #' @title Maximize the COM-Poisson log-likelihood function
-#' @param start Initial parameters
 #' @param X Design matrix related to the (approximate) mean parameter
 #'   \eqn{\mu = \exp(X \beta)}.
 #' @param Z Design matrix related to the dispersion parameter \eqn{\nu =
 #'   \exp(Z \gamma)}.
 #' @param y Vector of observed count data.
+#' @param start Initial parameters
 #' @param method Argument passed to \code{\link[stats]{optim}(...)}.
 #' @param lower Argument passed to \code{\link[stats]{optim}(...)}.
 #' @param upper Argument passed to \code{\link[stats]{optim}(...)}.
@@ -71,8 +71,8 @@ llcmp <- function(params, X, Z, y) {
 #' @importFrom stats glm.fit poisson optim
 #' @export
 #'
-cmp_fit <- function(start   = NULL,
-                    X, Z, y,
+cmp_fit <- function(X, Z, y,
+                    start   = NULL,
                     method  = c("BFGS",
                                 "Nelder-Mead",
                                 "CG",
@@ -82,14 +82,13 @@ cmp_fit <- function(start   = NULL,
                     upper   = Inf,
                     hessian = TRUE,
                     control = list()) {
-  #--------------------------------------------
-  # Dimensions
-  n <- length(y)
-  p <- ncol(X)
-  q <- ncol(Z)
   #-------------------------------------------
   # Initial values
   if (is.null(start)) {
+    # Dimensions
+    n <- length(y)
+    p <- ncol(X)
+    q <- ncol(Z)
     model <- glm.fit(x = X, y = y, family = poisson())
     start <- c("beta" = model$coefficients, rep(0, q))
     names(start)[1:q + p] <- paste0("gama.", colnames(Z))
@@ -130,6 +129,7 @@ cmp_fit <- function(start   = NULL,
 #' @export
 #'
 cmp <- function(formula, dformula = ~1, data, ...) {
+  dots <- list(...)
   #--------------------------------------------
   if (missing(data))
     data <- environment(formula)
@@ -140,12 +140,30 @@ cmp <- function(formula, dformula = ~1, data, ...) {
   X <- model.matrix(terms, frame)
   Z <- model.matrix(dformula, data)
   y <- model.response(frame)
+  p <- ncol(X)
+  q <- ncol(Z)
   if (dformula == ~ 1) colnames(Z) <- "log(nu)"
   #-------------------------------------------
   # Fit model
-  details <- cmp_fit(X = X, Z = Z, y = y, ...)
-  mean_coefficients <- details$par[1:ncol(X)]
-  disp_coefficients <- details$par[1:ncol(Z) + ncol(X)]
+  start <- dots$start
+  mpois <- glm.fit(x = X, y = y, family = poisson())
+  poiss <- list(loglik = -mpois$aic/2 + mpois$rank,
+                coefficients = mpois$coefficients)
+  if (is.null(start)) {
+    start <- c("beta" = mpois$coefficients, rep(0, q))
+    names(start)[1:q + p] <- paste0("gama.", colnames(Z))
+    optarg <- list(X = X, Z = Z, y = y, start = start)
+    optarg <- c(optarg, dots)
+  } else {
+    if (is.null(names(start)))
+      names(start)  <- c(paste0("beta.", colnames(X)),
+                         paste0("gama.", colnames(Z)))
+    optarg <- list(X = X, Z = Z, y = y, start = start)
+    optarg <- c(optarg, dots[-which(names(dots) == "start")])
+  }
+  details <- do.call(cmp_fit, optarg)
+  mean_coefficients <- details$par[1:p]
+  disp_coefficients <- details$par[1:q + p]
   names(mean_coefficients) <- colnames(X)
   names(disp_coefficients) <- colnames(Z)
   vcov <- NULL
@@ -170,6 +188,7 @@ cmp <- function(formula, dformula = ~1, data, ...) {
               disp_coefficients = disp_coefficients,
               fitted_mean = c(fitted_mean),
               fitted_disp = c(fitted_disp),
+              poissonfit = poiss,
               data = list(X = X, Z = Z, y = y))
   class(out) <- "cmpreg"
   return(out)
