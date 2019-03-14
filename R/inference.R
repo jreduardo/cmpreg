@@ -30,9 +30,8 @@ summary.cmpreg <- function(object, correlation = FALSE, ...) {
                       "Pr(>|z|)"    = pvalue)
   ctable <- list(mean       = ctableall[1:p, ,drop = FALSE],
                  dispersion = ctableall[1:q + p, ,drop = FALSE])
-  ctable <- mapply(`rownames<-`,
-                   ctable,
-                   lapply(object$data[-3], colnames))
+  rownames(ctable$mean) <- colnames(object$data$X)
+  rownames(ctable$dispersion) <- colnames(object$data$Z)
   #------------------------------------------
   if (correlation) {
     ctable$correlation <- cov2cor(object$vcov)
@@ -120,8 +119,8 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
   }
   forms_mean <- vapply(mlist, function(x) deparse(x$formula[-2]), "")
   forms_disp <- vapply(mlist, function(x) deparse(x$dformula), "")
-  same_mean <- all_identical(forms_mean)
-  same_disp <- all_identical(forms_disp)
+  same_mean <- all(forms_mean[1L] == forms_mean)
+  same_disp <- all(forms_disp[1L] == forms_disp)
   if (same_mean & same_disp) {
     warning("The models are equal.")
     heading <- ""
