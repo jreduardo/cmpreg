@@ -18,8 +18,7 @@
 #'   colums:
 #'
 #' \itemize{
-#' \item \code{stage}: A ordered factor with the (phenological) growth
-#'   stages;
+#' \item \code{stage}: A factor with the (phenological) growth stages;
 #' \item \code{defol}: Numerical with the defoliation levels (percent in
 #'   leaf area removed with scissors);
 #' \item \code{rept}: Indexes of repetition;
@@ -54,7 +53,7 @@
 #'   62.5\%). The experiment was carried out in a greenhouse and the
 #'   experimental units were pots with two plants in each.
 #'
-#' @format A \code{\link[tibble]{tibble}} with 73 observations and 6
+#' @format A \code{\link[tibble]{tibble}} with 74 observations and 6
 #'   colums:
 #'
 #' \itemize{
@@ -88,8 +87,9 @@
 #'   nitrofen, on a species of zooplankton (\emph{Ceriodaphnia
 #'   dubia}). Fifty animals were randomized into batches of ten and each
 #'   batch was put in a solution with a measured concentration of
-#'   nitrofen (0, 80, 160, 235 and 310 \eqn{\mu}g/litre. Subsequently,
-#'   the number of live offspring was recorded.
+#'   nitrofen (0, .8, 1.6, 2.35 and 3.10
+#'   \eqn{\mu}g/100litre. Subsequently, the number of live offspring was
+#'   recorded.
 #'
 #' @format A \code{\link[tibble]{tibble}} with 50 observations and 2
 #'   colums:
@@ -97,7 +97,7 @@
 #' \itemize{
 #'
 #' \item \code{dose}: Numeric value of the nitrofen concentration level
-#'   (in \eqn{\mu}g/litre);
+#'   (in \eqn{\mu}g/ 100 litre);
 #' \item \code{noffs}: Number of live offspring.
 #'
 #' }
