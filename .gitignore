@@ -11,5 +11,5 @@
 # Others
 *.Rout
 *.html
-roteiro*.R
+R/playground*.R
 inst/doc
