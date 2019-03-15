@@ -97,7 +97,7 @@ print.summary.cmpreg <- function(x,
 #' @importFrom stats pchisq
 #' @export
 #'
-anova.cmpreg <- function(object, ..., heading = TRUE) {
+anova.cmpreg <- function(object, ..., heading) {
   dots <- list(...)
   iscmp <- class(object) == "cmpreg"
   #------------------------------------------
@@ -107,7 +107,7 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
   if (!iscmp & length(dots) == 0) mlist <- object
   if (!iscmp & length(dots) > 0)  mlist <- c(object, dots)
   if (iscmp & length(dots)  > 0)  mlist <- c(list(object), dots)
-  # print(str(mlist))
+  if (missing(heading)) heading <- is.null(names(mlist))
   #------------------------------------------
   # Test wheter models are comparable
   #   TODO: check wheter models are nested.
@@ -123,7 +123,7 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
   same_disp <- all(forms_disp[1L] == forms_disp)
   if (same_mean & same_disp) {
     warning("The models are equal.")
-    heading <- ""
+    heading <- NULL
   }
   #--------------------------------------------
   # Compute stats
@@ -134,14 +134,20 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
   lrs <- c(NA, abs(diff(-2 * lls)))
   dfs <- c(NA, abs(diff(rds)))
   pvs <- pchisq(q = lrs, df = dfs, lower.tail = FALSE)
-  tab <- cbind("AIC"        = aic,
-               "BIC"        = bic,
-               "Resid.df"  = rds,
-               "loglik"     = lls,
-               "Chisq.df"   = dfs,
-               "Chisq"      = lrs,
-               "Pr(>Chisq)" = pvs)
-  rownames(tab) <- sprintf("Model %i", seq(mlist))
+  nam <- if (is.null(names(mlist))) {
+    sprintf("Model %i", seq_along(mlist))
+  } else names(mlist)
+  tab <- data.frame("Model"      = nam,
+                    "AIC"        = aic,
+                    "BIC"        = bic,
+                    "Resid.df"   = rds,
+                    "loglik"     = lls,
+                    "Chisq.df"   = dfs,
+                    "Chisq"      = lrs,
+                    "Pr(>Chisq)" = pvs,
+                    check.names = FALSE,
+                    stringsAsFactors = FALSE)
+  rownames(tab) <- NULL
   #--------------------------------------------
   # Heading
   if (heading) {
@@ -149,18 +155,20 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
     forms_disp <- gsub("~", " ~ ", forms_disp)
     blank <- paste(rep(" ", 7 + nchar(max(seq(mlist)))), collapse = "")
     if (same_mean & !same_disp) {
-      heading <- paste(sprintf("Model %s: log(nu)%s",
-                               seq(mlist), forms_disp),
+      heading <- paste(sprintf("%s: log(nu)%s",
+                               format(nam),
+                               forms_disp),
                        collapse = "\n")
     }
     if (!same_mean & same_disp) {
-      heading <- paste(sprintf("Model %s: log(mu)%s",
-                               seq(mlist), forms_mean),
+      heading <- paste(sprintf("%s: log(mu)%s",
+                               format(nam),
+                               forms_mean),
                        collapse = "\n")
     }
     if (!same_mean & !same_disp) {
-      heading <- paste(sprintf("Model %i: log(mu)%s\n%s log(nu)%s",
-                               seq(mlist),
+      heading <- paste(sprintf("%s: log(mu)%s\n%s log(nu)%s",
+                               format(nam),
                                forms_mean,
                                rep(blank, length(mlist)),
                                forms_disp),
@@ -169,12 +177,37 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
   } else {
     heading <- NULL
   }
-  attr(tab, "heading") <- paste0("\nLikelihood ratio test for ",
-                                 "COM-Poisson regression models",
-                                 "\n\n",  heading, "\n")
-  class(tab) <- "anova"
+  attr(tab, "heading") <- heading
+  class(tab) <- c("anova.cmpreg", "data.frame")
   return(tab)
 }
+
+anova.list <- function(object, ..., heading) {
+  out <- anova.cmpreg(object, ..., heading = heading)
+  return(out)
+}
+
+print.anova.cmpreg <- function(x,
+                               digits = max(getOption("digits") - 2L, 3L),
+                               signif.stars = getOption("show.signif.stars"),
+                               ...) {
+  cat(paste0("\nLikelihood ratio test for ",
+             "COM-Poisson regression models", "\n\n"))
+  if (!is.null(attr(x, "heading"))) {
+    cat(attr(x, "heading"), "\n\n")
+  }
+  xx <- x
+  rownames(xx) <- x$Model
+  printCoefmat(xx[, -1],
+               cs.ind = NA,
+               tst.ind = c(3L, 5L),
+               zap.ind = 7L,
+               na.print = "",
+               digits = digits,
+               signif.stars = signif.stars)
+  invisible(x)
+}
+
 
 #-----------------------------------------------------------------------
 #' @title Likelihood ratio test for equidispersion
@@ -190,12 +223,12 @@ anova.cmpreg <- function(object, ..., heading = TRUE) {
 #' @author Eduardo Jr <edujrrib@gmail.com>
 #' @export
 #'
-equitest <- function (object, ..., heading = TRUE) {
+equitest <- function (object, ..., heading) {
   UseMethod("equitest", object)
 }
 
 #' @export
-equitest.cmpreg <- function(object, ..., heading = TRUE) {
+equitest.cmpreg <- function(object, ..., heading) {
   dots <- list(...)
   iscmp <- class(object) == "cmpreg"
   #------------------------------------------
@@ -206,6 +239,10 @@ equitest.cmpreg <- function(object, ..., heading = TRUE) {
   if ( iscmp & !is.null(dots)) mlist <- c(list(object), dots)
   if (any(!vapply(mlist, inherits, what = "cmpreg", 0L)))
     stop("Not all objects are of class \"cmpreg\"")
+  if (missing(heading))
+    heading <- ifelse(length(mlist) == 1,
+                      FALSE,
+                      is.null(names(mlist)))
   #--------------------------------------------
   lpo <- vapply(mlist, function(x) x$poissonfit$loglik, 0)
   npo <- vapply(mlist, function(x) length(x$poissonfit$coef), 0L)
@@ -215,35 +252,39 @@ equitest.cmpreg <- function(object, ..., heading = TRUE) {
   lrs <- 2 * (lls - lpo)
   dfs <- obs - rds - npo
   pvs <- pchisq(q = lrs, df = dfs, lower.tail = FALSE)
-  tab <- cbind("Resid.df"   = rds,
-               "Loglik"     = lls,
-               "LRT_stat"   = lrs,
-               "LRT_df"     = dfs,
-               "Pr(>LRT_stat)" = pvs)
-  rnames <- sprintf("Model %i", seq_along(mlist))
-  rownames(tab) <- rnames
+  nam <- if (is.null(names(mlist))) {
+    sprintf("Model %i", seq_along(mlist))
+  } else names(mlist)
+  tab <- data.frame("Model"      = nam,
+                    "Resid.df"   = rds,
+                    "Loglik"     = lls,
+                    "LRT_stat"   = lrs,
+                    "LRT_df"     = dfs,
+                    "Pr(>LRT_stat)" = pvs,
+                    check.names = FALSE,
+                    stringsAsFactors = FALSE)
+  rownames(tab) <- NULL
   #--------------------------------------------
   if (heading) {
     calls <- vapply(mlist, function(x)
       deparse(x$call, width.cutoff = 500), "")
-    calls <- paste(paste0(rnames, ":"), calls)
-    calls <- gsub(", ", ",\n             ", calls)
+    cnames <- paste0(format(nam), ": ")
+    calls <- paste0(cnames, calls)
+    blank <- paste(c(",\n", rep(" ", nchar(cnames[1L]) + 4L)),
+                   collapse = "")
+    calls <- gsub(", ", blank, calls)
     calls <- paste(calls, collapse = "\n")
   } else {
     calls <- NULL
   }
   attr(tab, "heading") <- calls
-  class(tab) <- "equitest.cmpreg"
+  class(tab) <- c("equitest.cmpreg", "data.frame")
   return(tab)
 }
 
 #' @export
-equitest.list <- function(object, ..., heading = TRUE) {
-  out <- equitest.cmpreg(object, ...)
-  if (heading & !is.null(names(object))) {
-    calls <- sprintf("Model %i: %s", seq_along(object), names(object))
-    attr(out, "heading") <- paste(calls, collapse = "\n")
-  }
+equitest.list <- function(object, ..., heading) {
+  out <- equitest.cmpreg(object, ..., heading = heading)
   return(out)
 }
 
@@ -255,7 +296,13 @@ print.equitest.cmpreg <- function(x,
   if (!is.null(attr(x, "heading"))) {
     cat(attr(x, "heading"), "\n\n")
   }
-  printCoefmat(x, cs.ind = NA, tst.ind = 2:3, zap.ind = 5L,
+  xx <- x
+  rownames(xx) <- x$Model
+  printCoefmat(xx[, -1],
+               cs.ind = NA,
+               tst.ind = c(2L, 3L),
+               zap.ind = 5L,
+               na.print = "",
                digits = digits,
                signif.stars = signif.stars,
                ...)
