@@ -1,0 +1,112 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+
+```
+
+# `cmpreg`: Reparametrized COM-Poisson Regression Models <img src="man/figures/cmpreg_hex.png" align="right" height=140/>
+
+  [![Travis build status](https://travis-ci.org/jreduardo/cmpreg.svg?branch=master)](https://travis-ci.org/jreduardo/cmpreg)
+
+> [Eduardo E. R. Junior](http://leg.ufpr.br/~eduardojr) -
+> [jreduardo@usp.br](mailto:jreduardo@usp.br), IME-USP
+
+The `cmpreg` package contains functions to fit Conway-Maxwell-Poisson
+(COM-Poisson) models with varying dispersion (model mean and dispersion
+parameters as functions of covariates.) in the mean-type parametrization
+proposed by Ribeiro Jr, et al. 2018 <arxiv.org/abs/1801.09795>. The
+functions to computate the normalizing constant are written in C++, so
+the computations is reasonably fast.
+
+Joint work with [Walmes M. Zeviani](www.leg.ufpr.br/~walmes/) and
+[Clarice G.B. Demétrio](http://ce.esalq.usp.br/equipe/clarice-garcia-borges-demetrio).
+
+## Installation
+
+You can install the development version of `cmpreg` from
+[GitHub](https://github.com/jreduardo/cmpreg) with:
+
+```r
+
+# install.packages("devtools")
+devtools::install_github("jreduardo/cmpreg")
+
+```
+
+## Usage and example
+
+Basically, this package implements methods similar to those related to
+glm objects. The main function is `cmp(...)`.
+
+```{r example}
+
+library(cmpreg)
+
+# Fit model ------------------------------------------------------------
+model <- cmp(formula = ninsect ~ extract,
+             dformula = ~extract,
+             data = sitophilus)
+
+# Methods --------------------------------------------------------------
+print(model)
+summary(model)
+equitest(model)
+
+# Predict new data -----------------------------------------------------
+newdf <- sitophilus[c(1, 11, 21, 31), -2, drop = FALSE]
+predict(model,
+        newdata = newdf,
+        what = "all",
+        type = "response",
+        se.fit = TRUE,
+        augment_data = TRUE)
+
+```
+
+Currently, the methods implemented for `"cmpreg"` objects are
+
+```{r methods}
+
+methods(class = "cmpreg")
+
+```
+
+## Related projects ##
+
+There are other R packages to deal with COM-Poisson models that have
+somehow contributed to the writing of `cmpreg`.
+
+- [`compoisson`]: Routines for density and moments of the COM-Poisson
+  distribution under original parametrization.
+- [`CompGLM`]: Fit COM-Poisson models under original parametrization
+  (includes dispersion modeling).
+- [`COMPoissonReg`]: Fit COM-Poisson models under original
+  parametrization (includes zero-inflation and dispersion modeling).
+- [`glmmTMB`]: Fit (among other) COM-Poisson models under a different
+  mean-parametrization (includes zero-inflation, dispersion modeling and
+  random effects).
+
+## License ##
+
+The `gammacount` package is licensed under the
+[GNU General Public License, version 3], descrita no arquivo
+`LICENSE.md`, © 2019 E. E., Ribeiro Jr.
+
+<!------------------------------------------- -->
+<!-- Links -->
+[GNU General Public License, version 3]: https://www.gnu.org/licenses/gpl-3.0.ht
+[`compoisson`]: https://github.com/cran/compoisson
+[`CompGLM`]: https://github.com/jeffpollock9/CompGLM
+[`COMPoissonReg`]: https://github.com/lotze/COMPoissonReg
+[`glmmTMB`]: https://github.com/glmmTMB/glmmTMB

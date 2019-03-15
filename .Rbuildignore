@@ -1,3 +1,6 @@
+^README\.Rmd$
+^\.travis\.yml$
 ^data-raw$
 ^LICENSE\.md$
 ^README\.md$
+^man/figures/cmpreg_hex.svg$
