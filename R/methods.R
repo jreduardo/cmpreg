@@ -13,11 +13,15 @@ NULL
 #-----------------------------------------------------------------------
 # Print method
 #' @rdname cmpreg-methods
-#'
-print.cmpreg <- function(x, digits = max(3L, getOption("digits") - 3L)) {
+#' @export
+print.cmpreg <- function(x,
+                         digits = max(3L, getOption("digits") - 3L),
+                         ...) {
   cat("\nCOM-Poisson regression models", sep = "")
+  fcall <- gsub(", ", ",\n           ",
+                deparse(x$call, width.cutoff = 500))
   cat("\nCall:  ",
-      paste(deparse(x$call), sep = "\n", collapse = "\n"),
+      paste(fcall, sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
   cat("Mean coefficients:", "\n", sep = "")
   print.default(format(x$mean_coefficients, digits = digits),
@@ -43,7 +47,7 @@ print.cmpreg <- function(x, digits = max(3L, getOption("digits") - 3L)) {
 #-----------------------------------------------------------------------
 # Get the log-likelihood
 #' @rdname cmpreg-methods
-#'
+#' @export
 logLik.cmpreg <- function(object, ...) {
   if (!missing(...))
     warning("extra arguments discarded")
@@ -63,7 +67,7 @@ logLik.cmpreg <- function(object, ...) {
 #'   coefficients for the \code{mean} and for the \code{dispersion}
 #'   model is returned.
 #' @export
-#'
+#' @export
 coef.cmpreg <- function(object,
                         what = c("mean", "dispersion", "all"), ...) {
   if (!missing(...))
@@ -81,7 +85,7 @@ coef.cmpreg <- function(object,
 #-----------------------------------------------------------------------
 # Get the variance-covariance matrix
 #' @rdname cmpreg-methods
-#'
+#' @export
 vcov.cmpreg <- function(object, ...) {
   if (!missing(...))
     warning("extra arguments discarded")
@@ -91,7 +95,7 @@ vcov.cmpreg <- function(object, ...) {
 #-----------------------------------------------------------------------
 # Get the design matrices
 #' @rdname cmpreg-methods
-#'
+#' @export
 model.matrix.cmpreg <- function(object, ...) {
   if (!missing(...))
     warning("extra arguments discarded")

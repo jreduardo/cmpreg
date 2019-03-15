@@ -49,14 +49,17 @@ summary.cmpreg <- function(object, correlation = FALSE, ...) {
 #-----------------------------------------------------------------------
 # Print method for summary COM-Poisson models
 #' @rdname cmpreg-methods
+#' @export
 #'
 print.summary.cmpreg <- function(x,
                                  digits = max(3L, getOption("digits") - 3L),
                                  ...) {
   cat("\nIndividual Wald-tests for COM-Poisson regression models",
       sep = "")
+  fcall <- gsub(", ", ",\n           ",
+                deparse(x$call, width.cutoff = 500))
   cat("\nCall:  ",
-      paste(deparse(x$call), sep = "\n", collapse = "\n"),
+      paste(fcall, sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
   cat("Mean coefficients:", "\n", sep = "")
   printCoefmat(x$coeftable$mean,
@@ -183,11 +186,14 @@ anova.cmpreg <- function(object, ..., heading) {
   return(tab)
 }
 
+#' @rdname lrtests-cmpreg
+#' @export
 anova.list <- function(object, ..., heading) {
   out <- anova.cmpreg(object, ..., heading = heading)
   return(out)
 }
 
+#' @export
 print.anova.cmpreg <- function(x,
                                digits = max(getOption("digits") - 2L, 3L),
                                signif.stars = getOption("show.signif.stars"),
@@ -294,6 +300,7 @@ equitest.list <- function(object, ..., heading) {
   return(out)
 }
 
+#' @export
 print.equitest.cmpreg <- function(x,
                                   digits = max(getOption("digits") - 2L, 3L),
                                   signif.stars = getOption("show.signif.stars"),
