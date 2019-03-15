@@ -123,8 +123,11 @@ predict.cmpreg <- function(object,
   }
   if (augment_data & missingdata)
     warning("Needs 'newdata' for augment data.")
-  if (augment_data & !missingdata)
+  if (augment_data & !missingdata) {
+    if(what == "all") newdata <- rbind(newdata, newdata)
     out <- cbind(newdata, out)
+    rownames(out) <- NULL
+  }
   class(out) <- c("tbl_df", "tbl", "data.frame")
   return(out)
 }
@@ -133,9 +136,10 @@ predict.cmpreg <- function(object,
 #-----------------------------------------------------------------------
 # Fitted method
 #' @rdname cmpreg-methods
-#'
+#' @export
 fitted.cmpreg <- function(object,
-                          what = c("mean", "dispersion", "all")) {
+                          what = c("mean", "dispersion", "all"),
+                          ...) {
   what <- match.arg(what)
   switch(what,
          "all"        = list(mean       = object$fitted_mean,
