@@ -1,7 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `cmpreg`: Reparametrized COM-Poisson Regression Models <img src="man/figures/cmpreg_hex.png" align="right" height=140/>
+<img src="man/figures/cmpreg_hex.png" align="right" height=160/ display="block">
+
+# `cmpreg`: Reparametrized COM-Poisson Regression Models
 
 [![Travis build
 status](https://travis-ci.org/jreduardo/cmpreg.svg?branch=master)](https://travis-ci.org/jreduardo/cmpreg)
