@@ -85,6 +85,7 @@ print.summary.cmpreg <- function(x,
 }
 
 #-----------------------------------------------------------------------
+#' @name lrtests-cmpreg
 #' @title Likelihood ratio tests for nested COM-Poisson models
 #' @param object an object of class \code{cmpreg}, a result of call
 #'   \code{\link{cmp}(...)}.
@@ -208,6 +209,11 @@ print.anova.cmpreg <- function(x,
   invisible(x)
 }
 
+#' @export
+#' @rdname lrtests-cmpreg
+lrtest <- function (object, ..., heading) {
+  UseMethod("anova", object)
+}
 
 #-----------------------------------------------------------------------
 #' @title Likelihood ratio test for equidispersion
