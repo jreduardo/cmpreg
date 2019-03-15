@@ -89,26 +89,26 @@ methods(class = "cmpreg")
 There are other R packages to deal with COM-Poisson models that have
 somehow contributed to the writing of `cmpreg`.
 
-- [`compoisson`]: Routines for density and moments of the COM-Poisson
-  distribution under original parametrization.
-- [`CompGLM`]: Fit COM-Poisson models under original parametrization
-  (includes dispersion modeling).
-- [`COMPoissonReg`]: Fit COM-Poisson models under original
-  parametrization (includes zero-inflation and dispersion modeling).
-- [`glmmTMB`]: Fit (among other) COM-Poisson models under a different
-  mean-parametrization (includes zero-inflation, dispersion modeling and
-  random effects).
+- [`compoisson`][compoisson]: Routines for density and moments of the
+  COM-Poisson distribution under original parametrization.
+- [`CompGLM`][CompGLM]: Fit COM-Poisson models under original
+  parametrization (includes dispersion modeling).
+- [`COMPoissonReg`][COMPoissonReg]: Fit COM-Poisson models under
+  original parametrization (includes zero-inflation and dispersion
+  modeling).
+- [`glmmTMB`][glmmTMB]: Fit (among other) COM-Poisson models under a
+  different mean-parametrization (includes zero-inflation, dispersion
+  modeling and random effects).
 
 ## License ##
 
-The `gammacount` package is licensed under the
-[GNU General Public License, version 3], descrita no arquivo
-`LICENSE.md`, © 2019 E. E., Ribeiro Jr.
+The `gammacount` package is licensed under the [GNU General Public
+License, version 3], see file `LICENSE.md`, © 2019 E. E., Ribeiro Jr.
 
 <!------------------------------------------- -->
 <!-- Links -->
 [GNU General Public License, version 3]: https://www.gnu.org/licenses/gpl-3.0.ht
-[`compoisson`]: https://github.com/cran/compoisson
-[`CompGLM`]: https://github.com/jeffpollock9/CompGLM
-[`COMPoissonReg`]: https://github.com/lotze/COMPoissonReg
-[`glmmTMB`]: https://github.com/glmmTMB/glmmTMB
+[compoisson]: https://github.com/cran/compoisson
+[CompGLM]: https://github.com/jeffpollock9/CompGLM
+[COMPoissonReg]: https://github.com/lotze/COMPoissonReg
+[glmmTMB]: https://github.com/glmmTMB/glmmTMB

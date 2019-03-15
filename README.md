@@ -133,11 +133,15 @@ methods(class = "cmpreg")
 There are other R packages to deal with COM-Poisson models that have
 somehow contributed to the writing of `cmpreg`.
 
-  - distribution under original parametrization.
+  - [`compoisson`](https://github.com/cran/compoisson): Routines for
+    density and moments of the COM-Poisson distribution under original
+    parametrization.
   - [`CompGLM`](https://github.com/jeffpollock9/CompGLM): Fit
     COM-Poisson models under original parametrization (includes
     dispersion modeling).
-  - parametrization (includes zero-inflation and dispersion modeling).
+  - [`COMPoissonReg`](https://github.com/lotze/COMPoissonReg): Fit
+    COM-Poisson models under original parametrization (includes
+    zero-inflation and dispersion modeling).
   - [`glmmTMB`](https://github.com/glmmTMB/glmmTMB): Fit (among other)
     COM-Poisson models under a different mean-parametrization (includes
     zero-inflation, dispersion modeling and random effects).
@@ -145,8 +149,8 @@ somehow contributed to the writing of `cmpreg`.
 ## License
 
 The `gammacount` package is licensed under the [GNU General Public
-License, version 3](https://www.gnu.org/licenses/gpl-3.0.ht), descrita
-no arquivo `LICENSE.md`, © 2019 E. E., Ribeiro Jr.
+License, version 3](https://www.gnu.org/licenses/gpl-3.0.ht), see file
+`LICENSE.md`, © 2019 E. E., Ribeiro Jr.
 
 <!------------------------------------------- -->
 
