@@ -48,6 +48,7 @@ model <- cmp(formula = ninsect ~ extract,
              data = sitophilus)
 
 # Methods --------------------------------------------------------------
+
 print(model)
 #> 
 #> COM-Poisson regression models
@@ -57,14 +58,15 @@ print(model)
 #> 
 #> Mean coefficients:
 #>   (Intercept)    extractLeaf  extractBranch    extractSeed  
-#>      3.449860      -0.006594      -0.052379      -3.310863  
+#>      3.449861      -0.006596      -0.052377      -3.311192  
 #> 
 #> Dispersion coefficients:
 #>   (Intercept)    extractLeaf  extractBranch    extractSeed  
-#>       -0.6652        -0.3831        -0.3724        -0.1186  
+#>       -0.6652        -0.3832        -0.3724        -0.1177  
 #> 
 #> Residual degrees of freedom: 32
-#> Minus twice the log-likelihood: 242.8278
+#> Minus twice the log-likelihood: 242.8279
+
 summary(model)
 #> 
 #> Individual Wald-tests for COM-Poisson regression models
@@ -74,22 +76,23 @@ summary(model)
 #> 
 #> Mean coefficients:
 #>                Estimate Std. Error Z value Pr(>|z|)    
-#> (Intercept)    3.449860   0.077995  44.232  < 2e-16 ***
-#> extractLeaf   -0.006594   0.122209  -0.054    0.957    
-#> extractBranch -0.052379   0.123463  -0.424    0.671    
-#> extractSeed   -3.310863   0.543822  -6.088 1.14e-09 ***
+#> (Intercept)    3.449861   0.077995  44.232  < 2e-16 ***
+#> extractLeaf   -0.006596   0.122210  -0.054    0.957    
+#> extractBranch -0.052377   0.123462  -0.424    0.671    
+#> extractSeed   -3.311192   0.541399  -6.116  9.6e-10 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Dispersion coefficients:
 #>               Estimate Std. Error Z value Pr(>|z|)
 #> (Intercept)    -0.6652     0.4573  -1.455    0.146
-#> extractLeaf    -0.3831     0.6509  -0.589    0.556
-#> extractBranch  -0.3724     0.6514  -0.572    0.567
-#> extractSeed    -0.1186     1.5502  -0.077    0.939
+#> extractLeaf    -0.3832     0.6509  -0.589    0.556
+#> extractBranch  -0.3724     0.6514  -0.572    0.568
+#> extractSeed    -0.1177     1.5464  -0.076    0.939
 #> 
 #> Residual degrees of freedom: 32
-#> Minus twice the log-likelihood: 242.8278
+#> Minus twice the log-likelihood: 242.8279
+
 equitest(model)
 #> 
 #> Likelihood ratio test for equidispersion 
@@ -108,14 +111,14 @@ predict(model,
         se.fit = TRUE,
         augment_data = TRUE)
 #>   extract       what        fit       ste
-#> 1    Leaf       mean 31.2889797 2.9437657
-#> 2  Branch       mean 29.8887063 2.8605423
-#> 3    Seed       mean  1.1491206 0.3120492
-#> 4 Control       mean 31.4959708 2.4565258
-#> 5    Leaf dispersion  0.3505199 0.1623447
-#> 6  Branch dispersion  0.3542934 0.1643381
-#> 7    Seed dispersion  0.4566733 0.3412895
-#> 8 Control dispersion  0.5141727 0.2351421
+#> 1    Leaf       mean 31.2889190 2.9438074
+#> 2  Branch       mean 29.8887880 2.8605146
+#> 3    Seed       mean  1.1487432 0.3120589
+#> 4 Control       mean 31.4959985 2.4565378
+#> 5    Leaf dispersion  0.3505090 0.1623430
+#> 6  Branch dispersion  0.3542998 0.1643400
+#> 7    Seed dispersion  0.4570660 0.3423450
+#> 8 Control dispersion  0.5141684 0.2351420
 ```
 
 Currently, the methods implemented for `"cmpreg"` objects are

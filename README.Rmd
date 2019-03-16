@@ -61,8 +61,11 @@ model <- cmp(formula = ninsect ~ extract,
              data = sitophilus)
 
 # Methods --------------------------------------------------------------
+
 print(model)
+
 summary(model)
+
 equitest(model)
 
 # Predict new data -----------------------------------------------------
