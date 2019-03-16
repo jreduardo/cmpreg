@@ -20,17 +20,18 @@ NumericVector compute_logz(NumericVector loglambda,
                            NumericVector nu) {
   // Control loop
   int maxiter = 1e4;
-  double logepsilon = log(1e-4);
+  double logepsilon = log(1e-8);
   // Output vector
-  int n = nu.size();
+  int n = loglambda.size();
   NumericVector out(n);
   // Compute logz
   for (int i = 0; i < n; ++i) {
-    double logz = 0;
+    double logz  = 0;
+    double logz_ = 0;
     for (int j = 1; j < maxiter; ++j) {
-      double logz_ = j * loglambda[i] - nu[i] * R::lgammafn(j + 1);
+      logz_ += loglambda[i] - nu[i] * log(j);
       logz = R::logspace_add(logz, logz_);
-      if (logz_ < logepsilon) break;
+      if (logz_ - logz < logepsilon) break;
     }
     out[i] = logz;
   }
